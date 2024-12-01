@@ -1,15 +1,14 @@
 import { useQuery, QueryClient } from '@tanstack/react-query'
 
-export type UserRole = 'admin' | 'accountant'
+export type UserRole = 'admin' | 'accountant' | 'student'
 
 export interface User {
-  role: ReactNode
+  role: UserRole
   _id?: string
   serialNo: string
   staffCode: string
   name: string
   email: string
-  type: UserRole
 }
 
 async function fetchUsers(): Promise<User[]> {
@@ -41,5 +40,6 @@ export const queryClient = new QueryClient({
       retry: 1,
     },
   },
-})
+})   
+
 

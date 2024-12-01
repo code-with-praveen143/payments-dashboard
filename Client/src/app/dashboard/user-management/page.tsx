@@ -32,7 +32,7 @@ const signUpSchema = z.object({
   password: z
     .string()
     .min(8, { message: "Password must be at least 8 characters" }),
-  role: z.enum(["admin", "accountant"]),
+  role: z.enum(['admin', 'accountant', 'student']),
 });
 
 type SignupRequest = z.infer<typeof signUpSchema>;
@@ -70,32 +70,38 @@ export default function UserManagementComponent() {
 
   return (
     <div className="p-6">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-[28px] heading text-neutral-900">
+      <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
+        <h1 className="text-2xl md:text-3xl font-semibold text-neutral-900">
           User Management
         </h1>
         <Button
           onClick={() => setIsModalOpen(true)}
           size="sm"
-          className="gap-1 bg-blue-500 hover:bg-blue-600 rounded-full px-6"
+          className="gap-1 bg-blue-500 hover:bg-blue-600 rounded-full px-6 flex items-center justify-center"
         >
           Add
           <Plus className="h-4 w-4" />
         </Button>
       </div>
-      <div className="rounded-md border">
-        <Table>
+      <div className="rounded-md border overflow-x-auto">
+        <Table className="min-w-full">
           <TableHeader>
             <TableRow className="bg-[#EBF3FA]">
-              <TableHead className="w-[100px] border-x border-b">
+              <TableHead className="w-[100px] border-x border-b text-sm sm:text-base">
                 S.No
               </TableHead>
-              <TableHead className="border-x border-b">Staff Code</TableHead>
-              <TableHead className="border-x border-b">
+              <TableHead className="border-x border-b text-sm sm:text-base">
+                Staff Code
+              </TableHead>
+              <TableHead className="border-x border-b text-sm sm:text-base">
                 Accountant Name
               </TableHead>
-              <TableHead className="border-x border-b">E-mail id</TableHead>
-              <TableHead className="border-x border-b">Type</TableHead>
+              <TableHead className="border-x border-b text-sm sm:text-base">
+                E-mail id
+              </TableHead>
+              <TableHead className="border-x border-b text-sm sm:text-base">
+                Type
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -121,13 +127,21 @@ export default function UserManagementComponent() {
                 ))
               : users?.map((user, index) => (
                   <TableRow key={user._id} className="even:bg-[#EBF3FA]/30">
-                    <TableCell className="font-medium border-x">
+                    <TableCell className="font-medium border-x text-sm sm:text-base">
                       {index + 1}
                     </TableCell>
-                    <TableCell className="border-x">{user._id}</TableCell>
-                    <TableCell className="border-x">{user.name}</TableCell>
-                    <TableCell className="border-x">{user.email}</TableCell>
-                    <TableCell className="border-x">{user.role}</TableCell>
+                    <TableCell className="border-x text-sm sm:text-base">
+                      {user._id}
+                    </TableCell>
+                    <TableCell className="border-x text-sm sm:text-base">
+                      {user.name}
+                    </TableCell>
+                    <TableCell className="border-x text-sm sm:text-base">
+                      {user.email}
+                    </TableCell>
+                    <TableCell className="border-x text-sm sm:text-base">
+                      {user.role}
+                    </TableCell>
                   </TableRow>
                 ))}
           </TableBody>
@@ -135,9 +149,9 @@ export default function UserManagementComponent() {
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] w-full">
           <DialogHeader>
-            <DialogTitle>Add New User</DialogTitle>
+            <DialogTitle className="text-lg md:text-xl">Add New User</DialogTitle>
             <Button
               variant="ghost"
               size="icon"
@@ -148,7 +162,7 @@ export default function UserManagementComponent() {
             </Button>
           </DialogHeader>
           <UserForm onSubmit={onSignUpSubmit} />
-          {error && <p className="text-red-500 text-center mt-4">{error}</p>}
+          {error && <p className="text-red-500 text-center mt-4 text-sm">{error}</p>}
         </DialogContent>
       </Dialog>
     </div>

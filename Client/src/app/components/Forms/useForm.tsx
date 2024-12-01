@@ -31,7 +31,7 @@ const userSchema = z.object({
     .string()
     .min(8, { message: "Password must be at least 8 characters" })
     .optional(),
-  role: z.enum(["Admin", "Accountant", "Uploader"]),
+  role: z.enum(['admin', 'accountant', 'student']),
   active: z.boolean().optional(),
 });
 
@@ -56,7 +56,7 @@ export function UserForm({
       name: initialData?.name || "",
       email: initialData?.email || "",
       password: initialData?.password || "",
-      role: initialData?.role || "Accountant",
+      role: initialData?.role || "accountant",
       active: initialData?.active ?? true,
     },
   });
@@ -147,9 +147,9 @@ export function UserForm({
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="Admin">Admin</SelectItem>
-                  <SelectItem value="Accountant">Accountant</SelectItem>
-                  <SelectItem value="Uploader">Uploader</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="accountant">Accountant</SelectItem>
+                  <SelectItem value="student">Student</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />

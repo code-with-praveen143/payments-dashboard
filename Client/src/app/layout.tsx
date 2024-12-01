@@ -12,15 +12,9 @@ import { AuthLayout } from "@/components/layout/auth-layout";
 const authPages = ["/login", "/signup", "/privacy", "/"];
 const validRoutesPrefixes = [
   "/dashboard",
-  "/dashboard/college-data",
-  "/dashboard/card-data",
-  "/dashboard/pdf-uploads",
-  "/dashboard/print-station",
   "/dashboard/student-details",
-  "/dashboard/internships",
   "/dashboard/user-management",
-  "/dashboard/events",
-  "/dashboard/notifications",
+  "/dashboard/fee-structure"
 ];
 
 const isValidRoute = (pathname: string) => {

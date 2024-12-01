@@ -73,6 +73,7 @@ function LoginPageContent() {
       sessionStorage.setItem("auth_token", response.token)
       sessionStorage.setItem("username", response.user.name)
       sessionStorage.setItem("email", response.user.email)
+      sessionStorage.setItem("role", response.user.role)
       // Redirect to dashboard or home page
       router.push("/dashboard")
     } catch (error) {

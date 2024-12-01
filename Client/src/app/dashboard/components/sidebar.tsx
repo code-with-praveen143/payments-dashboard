@@ -6,18 +6,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  LayoutDashboard,
-  GraduationCap,
-  CreditCard,
-  FileUp,
-  Printer,
-  Users,
-  Briefcase,
-  UserCog,
-  Bell,
-  CalendarRange,
-} from "lucide-react";
+import { Bus, LayoutDashboard, UserCog, Wallet, Users, Banknote } from 'lucide-react';
 
 const sidebarNavItems = [
   {
@@ -26,63 +15,54 @@ const sidebarNavItems = [
     icon: LayoutDashboard,
   },
   {
-    title: "College Data",
-    href: "/dashboard/college-data",
-    icon: GraduationCap,
-  },
-  {
-    title: "Card Data",
-    href: "/dashboard/card-data",
-    icon: CreditCard,
-  },
-  {
-    title: "PDF Uploads",
-    href: "/dashboard/pdf-uploads",
-    icon: FileUp,
-  },
-  {
-    title: "Print Station",
-    href: "/dashboard/print-station",
-    icon: Printer,
-  },
-  {
-    title: "Student Details",
-    href: "/dashboard/student-details",
-    icon: Users,
-  },
-  {
-    title: "Internship/Placement",
-    href: "/dashboard/internships",
-    icon: Briefcase,
-  },
-  {
     title: "User Management",
     href: "/dashboard/user-management",
     icon: UserCog,
   },
   {
-    title: "Event Management",
-    href: "/dashboard/events",
-    icon: CalendarRange,
+    title: "Fee Structure",
+    href: "/dashboard/fee-structure",
+    icon: Wallet,
   },
   {
-    title: "Regulations",
-    href: "/dashboard/regulations",
-    icon: Bell,
+    title: "Bus Fee",
+    href: "/dashboard/bus-fee",
+    icon: Bus
   },
+  {
+    title: "Students",
+    href: "/dashboard/student-management",
+    icon: Users,
+  },
+  {
+    title: "Payment History",
+    href: "/dashboard/payment-history",
+    icon: Banknote,
+  }
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
 
+  const filteredNavItems = sidebarNavItems.filter(item => {
+    const role = sessionStorage.getItem('role');
+    
+    if (role === "student") {
+      return ["Students", "Payment History"].includes(item.title);
+    } else if (role === "admin") {
+      return !["Students", "Payment History"].includes(item.title);
+    } else if (role === "accountant") {
+      return !["Students", "Payment History", "User Management"].includes(item.title);
+    }
+    return true; // Show all items for other roles or if role is not set
+  });
+
   return (
     <ScrollArea className="h-screen">
-      {" "}
-      {/* Full height scroll area */}
       <div className="space-y-4 py-8">
         <div className="px-3 py-2">
           <div className="space-y-1">
-            {sidebarNavItems.map((item) => {
+            {filteredNavItems.map((item) => {
               const isActive = pathname === item.href;
               return (
                 <Button
@@ -109,3 +89,4 @@ export function Sidebar() {
     </ScrollArea>
   );
 }
+

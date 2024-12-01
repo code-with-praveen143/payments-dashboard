@@ -5,17 +5,7 @@ import { useTheme } from "next-themes";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import {
-  LayoutDashboard,
-  GraduationCap,
-  CreditCard,
-  FileUp,
-  Printer,
-  Users,
-  Briefcase,
-  UserCog,
-  CalendarRange,
-} from "lucide-react";
+import { LayoutDashboard, UserCog, CalendarRange, Bus, Users, Banknote } from 'lucide-react';
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -29,44 +19,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import * as NavigationMenu from "@radix-ui/react-navigation-menu";
-import { Bell, LogOut, Settings, User, Sun, Moon, Menu } from "lucide-react";
+import { Bell, LogOut, User, Sun, Moon, Menu } from "lucide-react";
 import logo from "../../../utils/logo.png";
-import { Badge } from "@/components/ui/badge"
-const sidebarNavItems = [
+
+const allNavItems = [
   {
     title: "Dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
-  },
-  {
-    title: "College Data",
-    href: "/dashboard/college-data",
-    icon: GraduationCap,
-  },
-  {
-    title: "Card Data",
-    href: "/dashboard/card-data",
-    icon: CreditCard,
-  },
-  {
-    title: "PDF Uploads",
-    href: "/dashboard/pdf-uploads",
-    icon: FileUp,
-  },
-  {
-    title: "Print Station",
-    href: "/dashboard/print-station",
-    icon: Printer,
-  },
-  {
-    title: "Student Details",
-    href: "/dashboard/student-details",
-    icon: Users,
-  },
-  {
-    title: "Internship/Placement",
-    href: "/dashboard/internships",
-    icon: Briefcase,
   },
   {
     title: "User Management",
@@ -74,10 +34,25 @@ const sidebarNavItems = [
     icon: UserCog,
   },
   {
-    title: "Event Management",
-    href: "/dashboard/events",
+    title: "Fee Structure",
+    href: "/dashboard/fee-structure",
     icon: CalendarRange,
   },
+  {
+    title: "Bus Fee",
+    href: "/dashboard/bus-fee",
+    icon: Bus,
+  },
+  {
+    title: "Students",
+    href: "/dashboard/student-management",
+    icon: Users,
+  },
+  {
+    title: "Payment History",
+    href: "/dashboard/payment-history",
+    icon: Banknote,
+  }
 ];
 
 const ThemeToggle = () => {
@@ -94,6 +69,7 @@ const ThemeToggle = () => {
       ) : (
         <Moon className="h-5 w-5" />
       )}
+      <span className="sr-only">Toggle theme</span>
     </Button>
   );
 };
@@ -101,7 +77,6 @@ const ThemeToggle = () => {
 const NotificationBell = () => (
   <Button variant="ghost" size="icon" className="relative">
     <Bell className="h-5 w-5" />
-    <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500 ring-2 ring-background" />
     <span className="sr-only">Notifications</span>
   </Button>
 );
@@ -109,15 +84,13 @@ const NotificationBell = () => (
 export function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = React.useState(false);
-  const isMobile =
-    typeof window !== "undefined" ? window.innerWidth < 1024 : false;
-  const authToken = typeof window !== "undefined" ? sessionStorage.getItem("auth_token") : null;
+  const isMobile = typeof window !== "undefined" ? window.innerWidth < 1024 : false;
   const [windowWidth, setWindowWidth] = React.useState(isMobile);
   const { theme, setTheme } = useTheme();
   const router = useRouter();
-  const [username, setUsername] = useState("")
-  const [email, setEmail] = useState("")
-  const [isAnimating, setIsAnimating] = useState(false)
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+
   React.useEffect(() => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth < 1024);
@@ -127,36 +100,50 @@ export function Navbar() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
- 
-
   useEffect(() => {
-    // Retrieve user details from session storage
-    const storedUsername = sessionStorage.getItem("username")
-    const storedEmail = sessionStorage.getItem("email")
-    
-    if (storedUsername) setUsername(storedUsername)
-    if (storedEmail) setEmail(storedEmail)
-  }, [])
+    const storedUsername = sessionStorage.getItem("username");
+    const storedEmail = sessionStorage.getItem("email");
+
+    if (storedUsername) setUsername(storedUsername);
+    if (storedEmail) setEmail(storedEmail);
+  }, []);
+
   const handleLogout = () => {
-    // Add any logout logic here (e.g., clearing tokens, etc.)
     router.push("/");
     sessionStorage.removeItem("auth_token");
-    sessionStorage.removeItem("username")
-    sessionStorage.removeItem("email")
+    sessionStorage.removeItem("username");
+    sessionStorage.removeItem("email");
+    sessionStorage.removeItem("role");
   };
+
   const getLogoutText = () => {
-    // Check if the auth_token is present in session storage
     const authToken = sessionStorage.getItem("auth_token");
     return authToken ? "Logout" : "Login";
   };
+
   const getInitials = (name: string) => {
     return name
-      .split(' ')
-      .map(word => word[0])
-      .join('')
+      .split(" ")
+      .map((word) => word[0])
+      .join("")
       .toUpperCase()
-      .slice(0, 2)
-  }
+      .slice(0, 2);
+  };
+
+  const getFilteredNavItems = () => {
+    const role = sessionStorage.getItem('role');
+    
+    if (role === "student") {
+      return allNavItems.filter(item => ["Students", "Payment History"].includes(item.title));
+    } else if (role === "admin") {
+      return allNavItems.filter(item => !["Students", "Payment History"].includes(item.title));
+    } else if (role === "accountant") {
+      return allNavItems.filter(item => !["Students", "Payment History", "User Management"].includes(item.title));
+    }
+    return allNavItems;
+  };
+
+  const filteredNavItems = getFilteredNavItems();
 
   return (
     <>
@@ -169,6 +156,7 @@ export function Navbar() {
             onClick={() => setIsOpen(!isOpen)}
           >
             <Menu className="h-6 w-6" />
+            <span className="sr-only">Toggle menu</span>
           </Button>
 
           <div className="absolute left-1/2 transform -translate-x-1/2 lg:relative lg:left-0 lg:transform-none lg:flex-1">
@@ -184,17 +172,7 @@ export function Navbar() {
           <div className="flex items-center gap-2 md:gap-4 ml-auto">
             {!windowWidth && (
               <>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                >
-                  {theme === "dark" ? (
-                    <Sun className="h-5 w-5" />
-                  ) : (
-                    <Moon className="h-5 w-5" />
-                  )}
-                </Button>
+                <ThemeToggle />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -202,37 +180,30 @@ export function Navbar() {
                       className="relative h-8 w-8 rounded-full"
                     >
                       <Avatar className="h-8 w-8">
+                        <AvatarImage src="/placeholder-avatar.jpg" alt={username} />
                         <AvatarFallback>{getInitials(username)}</AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56" align="end">
                     <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">
-                          {username}
-                        </p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                          {email}
-                        </p>
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">{username}</p>
+                        <p className="text-xs leading-none text-muted-foreground">{email}</p>
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => router.push("/dashboard/student-management")}>
                         <User className="mr-2 h-4 w-4" />
                         <span>Profile</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Settings className="mr-2 h-4 w-4" />
-                        <span>Settings</span>
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onClick={handleLogout}
                       className={`${
-                        authToken ? "text-red-600 dark:text-red-400" : ""
+                        sessionStorage.getItem("auth_token") ? "text-red-600 dark:text-red-400" : ""
                       }`}
                     >
                       <LogOut className="mr-2 h-4 w-4" />
@@ -240,14 +211,6 @@ export function Navbar() {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-<Button variant="ghost" size="icon" className="relative">
-      <Bell className={`h-5 w-5 ${isAnimating ? 'animate-ring' : ''}`} />
-        <Badge
-          variant="destructive"
-          className="absolute -top-1 -right-1 px-1 min-w-[1.25rem] h-5 flex items-center justify-center text-xs"
-        >
-        </Badge>
-    </Button>
               </>
             )}
 
@@ -259,42 +222,25 @@ export function Navbar() {
                     className="relative h-8 w-8 rounded-full"
                   >
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src="/avatars/01.png" alt="@johndoe" />
-                      <AvatarFallback>JD</AvatarFallback>
+                      <AvatarImage src="/placeholder-avatar.jpg" alt={username} />
+                      <AvatarFallback>{getInitials(username)}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end">
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        John Doe
-                      </p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        john.doe@example.com
-                      </p>
+                      <p className="text-sm font-medium leading-none">{username}</p>
+                      <p className="text-xs leading-none text-muted-foreground">{email}</p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push("/dashboard/student-management")}>
                       <User className="mr-2 h-4 w-4" />
                       <span>Profile</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Settings className="mr-2 h-4 w-4" />
-                      <span>Settings</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Bell className="mr-2 h-4 w-4" />
-                      <span>Notifications</span>
-                      <span className="ml-auto h-2 w-2 rounded-full bg-red-500" />
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        setTheme(theme === "dark" ? "light" : "dark")
-                      }
-                    >
+                    <DropdownMenuItem onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
                       {theme === "dark" ? (
                         <Sun className="mr-2 h-4 w-4" />
                       ) : (
@@ -326,7 +272,7 @@ export function Navbar() {
           `}
         >
           <nav className="flex flex-col p-4">
-            {sidebarNavItems.map((item) => (
+            {filteredNavItems.map((item) => (
               <Button
                 key={item.href}
                 variant={pathname === item.href ? "secondary" : "ghost"}
@@ -346,3 +292,5 @@ export function Navbar() {
     </>
   );
 }
+
+ 
