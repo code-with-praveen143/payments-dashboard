@@ -23,13 +23,7 @@ import {
 import { useAddBusFee } from '@/app/hooks/busfee/useCreateBusFee'
 import { useGetBusFees } from '@/app/hooks/busfee/useGetBusFees'
 
-interface Bus {
-  _id?: string;
-  route: string;
-  fee: number;
-}
 
-// Replace with your actual API endpoint
 const API_URL = 'https://osaw.in/v1/payment/api/busRoutes'
 
 export default function FeeStructure() {

@@ -20,7 +20,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { useUploadStudents } from "@/app/hooks/feeupload/route";
+import { useUploadStudents } from "@/app/hooks/feeupload/useUploadStudents";
 
 const FeeStructureUpload = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
