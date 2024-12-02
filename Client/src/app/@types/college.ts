@@ -33,3 +33,10 @@ export type CollegeExportData = {
   regulatoryBody: string;
   domain: string;
 }
+
+export interface CollegeDataFormProps {
+  onSubmit: (data: CollegeData) => void;
+  initialData?: CollegeData;
+  isEditMode?: boolean;
+  regulationsData?: any;
+}

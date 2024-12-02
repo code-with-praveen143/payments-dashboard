@@ -13,35 +13,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { CollegeData, Regulation, Program, CollegeDataFormProps } from "@/app/@types/college";
 
-// Interfaces (you may want to move these to a separate types file)
-interface Regulation {
-  type: string;
-  regulation: string;
-  validYears: number[];
-}
-
-interface Program {
-  name: string;
-  specializations: string[];
-  years: number[];
-  regulations: Regulation[];
-}
-
-interface CollegeDetails {
-  address: string;
-  contactNumber: string;
-  email: string;
-}
-
-interface CollegeData {
-  _id?: string;
-  collegeName: string;
-  regulatoryBody: string;
-  domain: string;
-  details: CollegeDetails;
-  programs: Program[];
-}
 
 // Predefined options
 const programOptions = [
@@ -76,12 +49,6 @@ const programOptions = [
   },
 ];
 
-interface CollegeDataFormProps {
-  onSubmit: (data: CollegeData) => void;
-  initialData?: CollegeData;
-  isEditMode?: boolean;
-  regulationsData?: any;
-}
 
 export default function CollegeDataForm({
   onSubmit,
