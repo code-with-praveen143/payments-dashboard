@@ -32,7 +32,7 @@ const signUpSchema = z.object({
   password: z
     .string()
     .min(8, { message: "Password must be at least 8 characters" }),
-  role: z.enum(['admin', 'accountant', 'student']),
+  role: z.enum(['admin', 'accountant']),
 });
 
 type SignupRequest = z.infer<typeof signUpSchema>;

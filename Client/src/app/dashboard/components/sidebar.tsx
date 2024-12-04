@@ -38,6 +38,11 @@ const sidebarNavItems = [
     title: "Payment History",
     href: "/dashboard/payment-history",
     icon: Banknote,
+  },
+  {
+    title: "Current Batch",
+    href: "/dashboard/current-batch",
+    icon: Users,
   }
 ];
 

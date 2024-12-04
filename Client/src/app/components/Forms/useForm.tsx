@@ -31,7 +31,7 @@ const userSchema = z.object({
     .string()
     .min(8, { message: "Password must be at least 8 characters" })
     .optional(),
-  role: z.enum(['admin', 'accountant', 'student']),
+  role: z.enum(['admin', 'accountant']),
   active: z.boolean().optional(),
 });
 
