@@ -5,3 +5,5 @@ const ReturnUrl = () => {
         </div>
     )
 }
+
+export default ReturnUrl;
