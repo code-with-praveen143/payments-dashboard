@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/form"
 import { useEffect, useState } from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import logo2 from "@/utils/logo2.png"
+import logo3 from "@/utils/logo3.png"
 import logo from "@/utils/logo.png"
 import { useLogin } from "../hooks/auth/useAuth"
 import { useRouter } from "next/navigation"
@@ -89,9 +89,7 @@ function LoginPageContent() {
           <div className="relative h-64 w-full">
             {isClient && (
               <ClientSideImage
-                src="https://khitguntur.ac.in/wp-content/uploads/2024/03/Kallam-Haranadhareddy-Institute-of-Technology-Banner-3_3-removebg-preview.png.webp"
-                width={60}
-                height={72}
+                src={logo3}
                 alt="Campusify Logo"
                 layout="fill"
                 objectFit="contain"
