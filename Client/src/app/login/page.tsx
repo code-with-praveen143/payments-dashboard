@@ -89,7 +89,9 @@ function LoginPageContent() {
           <div className="relative h-64 w-full">
             {isClient && (
               <ClientSideImage
-                src={logo2}
+                src="https://khitguntur.ac.in/wp-content/uploads/2024/03/Kallam-Haranadhareddy-Institute-of-Technology-Banner-3_3-removebg-preview.png.webp"
+                width={60}
+                height={72}
                 alt="Campusify Logo"
                 layout="fill"
                 objectFit="contain"
