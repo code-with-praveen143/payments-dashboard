@@ -98,7 +98,7 @@ function LoginPageContent() {
             )}
           </div>
           <h2 className="mt-8 max-w-xl text-center text-3xl font-bold leading-tight text-gray-700 dark:text-gray-200">
-            Transform Your Campus Operations with Campusify
+          Kallam Haranadha Reddy Institute of Engineering & Technology
           </h2>
         </div>
 
@@ -210,16 +210,6 @@ function LoginPageContent() {
               </Form>
             </CardContent>
             <CardFooter className="flex flex-col space-y-4 text-center">
-              <p className="px-2 text-sm text-muted-foreground dark:text-gray-400">
-                Don&apos;t have an account?{" "}
-                <Button
-                  variant="link"
-                  className="p-0 text-secondary hover:underline hover:underline-offset-4"
-                  onClick={() => router.push('/signup')}
-                >
-                  Sign up
-                </Button>
-              </p>
               <p className="px-2 text-xs text-muted-foreground dark:text-gray-400">
                 By continuing, you agree to our{" "}
                 <Link
