@@ -53,7 +53,7 @@ export function Sidebar() {
     const role = sessionStorage.getItem('role');
     
     if (role === "student") {
-      return ["Students", "Payment History"].includes(item.title);
+      return ["Dashboard", "Students", "Payment History"].includes(item.title);
     } else if (role === "admin") {
       return !["Students"].includes(item.title);
     } else if (role === "accountant") {

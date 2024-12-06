@@ -139,7 +139,7 @@ export function Navbar() {
     const role = sessionStorage.getItem('role');
     
     if (role === "student") {
-      return allNavItems.filter(item => ["Students", "Payment History"].includes(item.title));
+      return allNavItems.filter(item => ["Dashboard", "Students", "Payment History"].includes(item.title));
     } else if (role === "admin") {
       return allNavItems.filter(item => !["Students",].includes(item.title));
     } else if (role === "accountant") {
