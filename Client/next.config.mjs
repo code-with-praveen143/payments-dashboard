@@ -22,6 +22,12 @@ const nextConfig = {
         port: "",
         pathname: "/v1/uploads/**",
       },
+      {
+        protocol: "https",
+        hostname: "khit.campusify.io",
+        port: "",
+        pathname: "/_next/image?**",
+      }
     ],
   },
   eslint: {
