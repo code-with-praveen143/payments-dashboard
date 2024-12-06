@@ -55,9 +55,9 @@ export function Sidebar() {
     if (role === "student") {
       return ["Students", "Payment History"].includes(item.title);
     } else if (role === "admin") {
-      return !["Students", "Payment History"].includes(item.title);
+      return !["Students"].includes(item.title);
     } else if (role === "accountant") {
-      return !["Students", "Payment History", "User Management"].includes(item.title);
+      return !["Students", "User Management"].includes(item.title);
     }
     return true; // Show all items for other roles or if role is not set
   });

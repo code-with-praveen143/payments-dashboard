@@ -141,9 +141,9 @@ export function Navbar() {
     if (role === "student") {
       return allNavItems.filter(item => ["Students", "Payment History"].includes(item.title));
     } else if (role === "admin") {
-      return allNavItems.filter(item => !["Students", "Payment History"].includes(item.title));
+      return allNavItems.filter(item => !["Students",].includes(item.title));
     } else if (role === "accountant") {
-      return allNavItems.filter(item => !["Students", "Payment History", "User Management"].includes(item.title));
+      return allNavItems.filter(item => !["Students", "User Management"].includes(item.title));
     }
     return allNavItems;
   };
