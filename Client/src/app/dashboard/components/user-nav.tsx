@@ -5,7 +5,7 @@ import { useTheme } from "next-themes";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { LayoutDashboard, UserCog, CalendarRange, Bus, Users, Banknote } from 'lucide-react';
+import { LayoutDashboard, UserCog, CalendarRange, Bus, Users, Banknote,Link2 } from 'lucide-react';
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -57,6 +57,11 @@ const allNavItems = [
     title: "Current Batch",
     href: "/dashboard/current-batch",
     icon: Users,
+  },
+  {
+    title: "Return URL",
+    href: "/dashboard/return-url",
+    icon: Link2,
   }
 ];
 

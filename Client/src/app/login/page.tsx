@@ -1,18 +1,18 @@
-'use client'
+"use client";
 
-import Link from "next/link"
-import dynamic from "next/dynamic"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import Link from "next/link";
+import dynamic from "next/dynamic";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -20,36 +20,38 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { useEffect, useState } from "react"
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import logo3 from "@/utils/logo3.png"
-import logo from "@/utils/logo.png"
-import { useLogin } from "../hooks/auth/useAuth"
-import { useRouter } from "next/navigation"
-import { Eye, EyeOff } from 'lucide-react'
+} from "@/components/ui/form";
+import { useEffect, useState } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import logo3 from "@/utils/logo3.png";
+import logo from "@/utils/logo.png";
+import { useLogin } from "../hooks/auth/useAuth";
+import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
+import { useTheme } from "next-themes";
 
 type LoginRequest = {
-  email: string
-  password: string
-}
+  email: string;
+  password: string;
+};
 
-const ClientSideImage = dynamic(() => import("next/image"), { ssr: false })
+const ClientSideImage = dynamic(() => import("next/image"), { ssr: false });
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient();
 
 const signInSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
   password: z
     .string()
     .min(8, { message: "Password must be at least 8 characters" }),
-})
+});
 
 function LoginPageContent() {
-  const [isClient, setIsClient] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [isClient, setIsClient] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { theme, setTheme } = useTheme();
   const [showPassword, setShowPassword] = useState(false);
-  const router = useRouter()
+  const router = useRouter();
 
   const signInForm = useForm({
     resolver: zodResolver(signInSchema),
@@ -57,30 +59,30 @@ function LoginPageContent() {
       email: "",
       password: "",
     },
-  })
+  });
 
   useEffect(() => {
-    setIsClient(true)
-  }, [])
+    setIsClient(true);
+  }, []);
 
-  const loginMutation = useLogin()
+  const loginMutation = useLogin();
 
   const onSignInSubmit = async (data: LoginRequest) => {
     try {
-      const response = await loginMutation.mutateAsync(data)
-      console.log("Login successful:", response)
+      const response = await loginMutation.mutateAsync(data);
+      console.log("Login successful:", response);
       // Store the token in localStorage or a secure cookie
-      sessionStorage.setItem("auth_token", response.token)
-      sessionStorage.setItem("username", response.user.name)
-      sessionStorage.setItem("email", response.user.email)
-      sessionStorage.setItem("role", response.user.role)
+      sessionStorage.setItem("auth_token", response.token);
+      sessionStorage.setItem("username", response.user.name);
+      sessionStorage.setItem("email", response.user.email);
+      sessionStorage.setItem("role", response.user.role);
       // Redirect to dashboard or home page
-      router.push("/dashboard")
+      router.push("/dashboard");
     } catch (error) {
-      console.error("Login error:", error)
-      setError("Invalid credentials. Please try again.")
+      console.error("Login error:", error);
+      setError("Invalid credentials. Please try again.");
     }
-  }
+  };
 
   return (
     <div className="min-h-screen w-full bg-white dark:bg-black">
@@ -98,7 +100,7 @@ function LoginPageContent() {
             )}
           </div>
           <h2 className="mt-8 max-w-xl text-center text-3xl font-bold leading-tight text-gray-700 dark:text-gray-200">
-          Kallam Haranadha Reddy Institute of Engineering & Technology
+            Kallam Haranadha Reddy Institute of Engineering & Technology
           </h2>
         </div>
 
@@ -159,42 +161,54 @@ function LoginPageContent() {
                         <div className="flex items-center justify-between">
                           <FormLabel>Password</FormLabel>
                           <Link
-                            href="/forgot-password"
+                            href="/reset-password"
                             className="text-xs text-secondary hover:underline hover:underline-offset-4"
                           >
                             Forgot password?
                           </Link>
                         </div>
                         <FormControl>
-                    <div className="relative">
-                      <Input
-                        {...field}
-                        placeholder="Enter your password"
-                        type={showPassword ? 'text' : 'password'}
-                        autoCapitalize="none"
-                        autoComplete="current-password"
-                        autoCorrect="off"
-                        className="shadow-sm dark:bg-gray-800 dark:text-white dark:border-gray-700 pr-10"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowPassword(!showPassword)}
-                        tabIndex={-1}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-6 w-6 text-gray-800" aria-hidden="true" />
-                        ) : (
-                          <Eye className="h-6 w-6 text-gray-800" aria-hidden="true" />
-                        )}
-                        <span className="sr-only">
-                          {showPassword ? 'Hide password' : 'Show password'}
-                        </span>
-                      </Button>
-                    </div>
-                  </FormControl>
+                          <div className="relative">
+                            <Input
+                              {...field}
+                              placeholder="Enter your password"
+                              type={showPassword ? "text" : "password"}
+                              autoCapitalize="none"
+                              autoComplete="current-password"
+                              autoCorrect="off"
+                              className="shadow-sm dark:bg-gray-800 dark:text-white dark:border-gray-700 pr-10"
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                              onClick={() => setShowPassword(!showPassword)}
+                              tabIndex={-1}
+                            >
+                              {showPassword ? (
+                                <Eye
+                                  className={`h-6 w-6 text-${
+                                    theme === "dark" ? "white" : "gray-800"
+                                  }`}
+                                  aria-hidden="true"
+                                />
+                              ) : (
+                                <EyeOff
+                                  className={`h-6 w-6 text-${
+                                    theme === "dark" ? "white" : "gray-800"
+                                  }`}
+                                  aria-hidden="true"
+                                />
+                              )}
+                              <span className="sr-only">
+                                {showPassword
+                                  ? "Hide password"
+                                  : "Show password"}
+                              </span>
+                            </Button>
+                          </div>
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -231,7 +245,7 @@ function LoginPageContent() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default function LoginPage() {
@@ -239,5 +253,5 @@ export default function LoginPage() {
     <QueryClientProvider client={queryClient}>
       <LoginPageContent />
     </QueryClientProvider>
-  )
-} 
+  );
+}
