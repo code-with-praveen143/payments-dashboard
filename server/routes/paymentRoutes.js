@@ -27,9 +27,12 @@ router.post('/initiate', paymentController.initiatePayment);
 
 /**
  * @swagger
- * /api/payments/verify:
+ * /return-url:
  *   post:
- *     summary: Verify payment
+ *     summary: Handle the return URL callback from ICICI Eazypay.
+ *     description: This endpoint receives payment data from ICICI Eazypay, verifies the payment, and redirects the user to the frontend with a status.
+ *     tags:
+ *       - Payment
  *     requestBody:
  *       required: true
  *       content:
@@ -39,14 +42,23 @@ router.post('/initiate', paymentController.initiatePayment);
  *             properties:
  *               orderId:
  *                 type: string
- *               status:
- *                 type: string
+ *                 description: Unique ID for the payment order.
+ *                 example: "ORD12345"
  *               transactionId:
  *                 type: string
+ *                 description: Transaction ID provided by ICICI Eazypay.
+ *                 example: "TXN67890"
+ *               status:
+ *                 type: string
+ *                 description: Payment status (e.g., success, failure).
+ *                 example: "success"
  *     responses:
- *       200:
- *         description: Payment verification successful
+ *       302:
+ *         description: Redirects the user to the frontend return URL with the payment status.
+ *       500:
+ *         description: Server error or payment verification failed.
  */
-router.post('/verify', paymentController.verifyPayment);
+router.post('/dashboard/return-url', paymentController.verifyPayment);
+  
 
 module.exports = router;

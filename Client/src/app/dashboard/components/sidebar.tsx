@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Bus, LayoutDashboard, UserCog, Wallet, Users, Banknote, Link2 } from 'lucide-react';
+import { Bus, LayoutDashboard, UserCog, Wallet, Users, Banknote, Link2, Landmark } from 'lucide-react';
 
 const sidebarNavItems = [
   {
@@ -48,6 +48,11 @@ const sidebarNavItems = [
     title: "Return URL",
     href: "/dashboard/return-url",
     icon: Link2,
+  },
+  {
+    title: "Payment Gateway",
+    href: "/dashboard/payment-gateway",
+    icon: Landmark,
   }
 ];
 
