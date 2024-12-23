@@ -29,4 +29,4 @@ swaggerSetup(app);
 // Connect to DB and start server
 connectDB();
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port: http://localhost:5000${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port: http://localhost:${PORT}`));
