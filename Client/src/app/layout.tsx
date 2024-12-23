@@ -22,38 +22,38 @@ const isValidRoute = (pathname: string) => {
   return validRoutesPrefixes.some((prefix) => pathname.startsWith(prefix));
 };
 
-// const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-//   const router = useRouter();
-//   const pathname = usePathname();
-//   const [isLoading, setIsLoading] = useState(true);
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [isLoading, setIsLoading] = useState(true);
 
-//   useEffect(() => {
-//     const checkAuth = () => {
-//       try {
-//         const token = sessionStorage.getItem("auth_token");
+  useEffect(() => {
+    const checkAuth = () => {
+      try {
+        const token = sessionStorage.getItem("auth_token");
 
-//         if (!token && isValidRoute(pathname)) {
-//           router.replace("/");
-//           return;
-//         }
+        if (!token && isValidRoute(pathname)) {
+          router.replace("/");
+          return;
+        }
 
-//         setIsLoading(false);
-//       } catch (error) {
-//         console.error("Auth check failed:", error);
-//         router.replace("/");
-//       }
-//     };
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Auth check failed:", error);
+        router.replace("/");
+      }
+    };
 
-//     checkAuth();
-//   }, [pathname, router]);
+    checkAuth();
+  }, [pathname, router]);
 
-//   // Your loading.tsx will handle the loading state
-//   if (isLoading) {
-//     return null;
-//   }
+  // Your loading.tsx will handle the loading state
+  if (isLoading) {
+    return null;
+  }
 
-//   return <>{children}</>;
-// };
+  return <>{children}</>;
+};
 
 export default function RootLayout({
   children,
@@ -74,13 +74,13 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <QueryClientProvider client={queryClient}>
-              {/* <ProtectedRoute> */}
+              <ProtectedRoute>
                 {isAuthPage || !isValidRoute(pathname) ? (
                   <AuthLayout>{children}</AuthLayout>
                 ) : (
                   <AppLayout>{children}</AppLayout>
                 )}
-              {/* </ProtectedRoute> */}
+              </ProtectedRoute>
           </QueryClientProvider>
         </ThemeProvider>
       </body>
