@@ -24,7 +24,7 @@ const programOptions = [
     years: [1, 2, 3, 4],
     regulations: [
       {
-        type: "JNTU",
+        type: "JNTU", // hello
         regulation: "",
         validYears: [2020, 2021, 2022, 2023],
       },
