@@ -3,12 +3,13 @@ import { Heading } from "lucide-react";
 import React from "react";
 
 const RevenueSummary = () => {
+  
   const cards = [
     { title: "Total Revenue", amount: "₹ 2,56,970", icon: "📈", color: "bg-green-100" },
     { title: "College Fees", amount: "₹ 1,38,000", icon: "🏫", color: "bg-red-100" },
     { title: "Bus Fees", amount: "₹ 68,000", icon: "🚌", color: "bg-orange-100" },
     { title: "Hostel Fees", amount: "₹ 93,970", icon: "🏢", color: "bg-indigo-100" },
-    { title: "TNP Fees", amount: "₹ 56,970", icon: "📘", color: "bg-red-100" },
+    { title: "TNP Fees", amount: "₹ 40000", icon: "📘", color: "bg-red-100" },
   ];
 
   return (
