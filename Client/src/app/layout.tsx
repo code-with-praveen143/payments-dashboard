@@ -14,7 +14,8 @@ const validRoutesPrefixes = [
   "/dashboard",
   "/dashboard/student-details",
   "/dashboard/user-management",
-  "/dashboard/fee-structure"
+  "/dashboard/fee-structure",
+  "/dashboard/return-url"
 ];
 
 const isValidRoute = (pathname: string) => {
