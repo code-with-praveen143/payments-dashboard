@@ -282,11 +282,11 @@ export function Navbar() {
       <NavigationMenu.Root className="lg:hidden">
         <NavigationMenu.List
           className={`
-            fixed w-full bg-background border-b z-40 shadow-lg transition-transform duration-300 ease-in-out
+            fixed w-full bg-background border-b z-40 shadow-lg transition-transform duration-300 ease-in-out overflow-x-hidden
             ${isOpen ? "translate-y-0" : "-translate-y-full"}
           `}
         >
-          <nav className="flex flex-col p-4">
+          <nav className="container max-w-screen-2xl mx-auto flex flex-col p-4">
             {filteredNavItems.map((item) => (
               <Button
                 key={item.href}

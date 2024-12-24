@@ -71,7 +71,7 @@ export default function UserManagementComponent() {
   return (
     <div className="p-6">
       <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
-        <h1 className="text-2xl md:text-3xl font-semibold text-neutral-900">
+        <h1 className="text-2xl md:text-3xl font-semibold">
           User Management
         </h1>
         <Button
@@ -86,7 +86,7 @@ export default function UserManagementComponent() {
       <div className="rounded-md border overflow-x-auto">
         <Table className="min-w-full">
           <TableHeader>
-            <TableRow className="bg-[#EBF3FA]">
+            <TableRow >
               <TableHead className="w-[100px] border-x border-b text-sm sm:text-base">
                 S.No
               </TableHead>

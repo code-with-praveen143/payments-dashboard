@@ -7,9 +7,9 @@ import RevenueSummary from "./components/revenue-card";
 
 export default function Dashboard() {
   return (
-    <div className="flex">  
+    <div className="flex ">  
       {/* Main Content */}
-      <div className="flex-1 p-6 bg-gray-50">
+      <div className="flex-1 p-6">
         <RevenueSummary />
         <BillingTable />
       </div>

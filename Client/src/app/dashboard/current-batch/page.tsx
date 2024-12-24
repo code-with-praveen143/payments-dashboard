@@ -53,7 +53,7 @@ const DepartmentGrid = () => {
     <div className="p-4 space-y-8">
       {data.map((yearGroup, index) => (
         <div key={index}>
-          <h2 className="text-xl font-bold text-gray-800 mb-4">{yearGroup.year}</h2>
+          <h2 className="text-xl font-bold mb-4">{yearGroup.year}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {yearGroup.departments.map((dept, deptIndex) => {
               const studentsPerSection = Math.floor(dept.count / dept.sections.length);

@@ -104,7 +104,7 @@ const FeeStructureUpload = () => {
 
   return (
     <div className="container mx-auto py-8">
-      <h1 className="text-[28px] font-[800px] text-[#121212] mb-6 pl-2">
+      <h1 className="text-[28px] font-[800px] mb-6 pl-2">
         Fee Structure Upload
       </h1>
       <div className="bg-white rounded-lg shadow"></div>

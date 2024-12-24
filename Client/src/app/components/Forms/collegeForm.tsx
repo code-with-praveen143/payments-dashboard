@@ -1,4 +1,4 @@
-"use client";
+"use client";  // indicates that it is a client side component 
 import React, { useState } from "react";
 import { Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -84,8 +84,8 @@ export default function CollegeDataForm({
   const [showJNTUDropdown, setShowJNTUDropdown] = useState(false);
 
   // Group regulations by category
-  const groupedRegulations = regulationsData?.reduce(
-    (acc: any, regulation: any) => {
+  const groupedRegulations = regulationsData?.reduce(  // The optional chaining (?.) ensures that if regulationsData is null or undefined., the entire expression will return undefined instead of throwing an error.
+    (acc: any, regulation: any) => {    
       const category = regulation.regulation_category;
       if (!acc[category]) {
         acc[category] = [];
@@ -131,7 +131,6 @@ export default function CollegeDataForm({
       setNewSpecialization("");
     }
   };
-
   const handleRemoveSpecialization = (spec: string) => {
     setCustomSpecializations(customSpecializations.filter((s) => s !== spec));
     setSelectedSpecializations(
