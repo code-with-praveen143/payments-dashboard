@@ -11,16 +11,16 @@ const encryptValue = (value, encryptionKey) => {
 
 const generateEncryptedURL = async (params, encryptionKey) => {
   const encryptedParams = {
-    'mandatory fields': encryptValue(params.mandatoryFields, encryptionKey),
-    'optional fields': encryptValue(params.optionalFields || '', encryptionKey),
-    'returnurl': encryptValue(params.returnURL, encryptionKey),
-    'Reference No': encryptValue(params.referenceNo, encryptionKey),
-    'submerchantid': encryptValue(params.subMerchantID, encryptionKey),
-    'transaction amount': encryptValue(params.transactionAmount, encryptionKey),
-    'paymode': encryptValue(params.payMode, encryptionKey),
+    'mandatory fields': encodeURIComponent(encryptValue(params.mandatoryFields, encryptionKey)),
+    'optional fields': encodeURIComponent(encryptValue(params.optionalFields || '', encryptionKey)),
+    'returnurl': encodeURIComponent(encryptValue(params.returnURL, encryptionKey)),
+    'Reference No': encodeURIComponent(encryptValue(params.referenceNo, encryptionKey)),
+    'submerchantid': encodeURIComponent(encryptValue(params.subMerchantID, encryptionKey)),
+    'transaction amount': encodeURIComponent(encryptValue(params.transactionAmount, encryptionKey)),
+    'paymode': encodeURIComponent(encryptValue(params.payMode, encryptionKey)),
   };
 
-  const encryptedURL = `https://eazypay.icicibank.com/EazyPG?merchantid=${params.merchantID}` +
+  const encryptedURL = `https://eazypay.icicibank.com/EazyPG?merchantid=${encodeURIComponent(params.merchantID)}` +
     `&mandatory fields=${encryptedParams['mandatory fields']}` +
     `&optional fields=${encryptedParams['optional fields']}` +
     `&returnurl=${encryptedParams.returnurl}` +
@@ -31,5 +31,6 @@ const generateEncryptedURL = async (params, encryptionKey) => {
 
   return encryptedURL;
 };
+
 
 module.exports = { generateEncryptedURL };

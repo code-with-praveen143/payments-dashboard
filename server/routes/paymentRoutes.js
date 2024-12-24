@@ -8,6 +8,8 @@ const paymentController = require('../controllers/paymentController');
  * /api/payments/initiate:
  *   post:
  *     summary: Initiate payment
+*     tags:
+ *       - Payment
  *     requestBody:
  *       required: true
  *       content:
@@ -27,7 +29,7 @@ router.post('/initiate', paymentController.initiatePayment);
 
 /**
  * @swagger
- * /return-url:
+ * /api/payments/return-url:
  *   post:
  *     summary: Handle the return URL callback from ICICI Eazypay.
  *     description: This endpoint receives payment data from ICICI Eazypay, verifies the payment, and redirects the user to the frontend with a status.

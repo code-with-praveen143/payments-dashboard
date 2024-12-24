@@ -10,7 +10,7 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { useSignUp } from "../hooks/auth/useAuth";
-import { UserForm } from "../components/Forms/useForm";
+import { UserForm } from "../forms/useForm";
 
 export default function SignupPage() {
   const [error, setError] = useState<string | null>(null);

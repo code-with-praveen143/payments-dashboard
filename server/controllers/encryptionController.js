@@ -1,6 +1,6 @@
 // controllers/encryptionController.js
-const { generateEncryptedURL } = require('../services/encryptionService');
-const PaymentRequest = require('../models/PaymentRequest');
+const { generateEncryptedURL } = require("../services/encryptionService");
+const PaymentRequest = require("../models/PaymentRequest");
 
 exports.createEncryptedURL = async (req, res) => {
   const encryptionKey = process.env.ICICI_ENCRYPTION_KEY;
@@ -17,8 +17,19 @@ exports.createEncryptedURL = async (req, res) => {
 
   try {
     // Generate encrypted URL
+    const encodeParameter = (value) => encodeURIComponent(value);
+
     const encryptedURL = await generateEncryptedURL(
-      { merchantID, mandatoryFields, optionalFields, returnURL, referenceNo, subMerchantID, transactionAmount, payMode },
+      {
+        merchantID: encodeParameter(merchantID),
+        mandatoryFields: encodeParameter(mandatoryFields),
+        optionalFields: encodeParameter(optionalFields),
+        returnURL: encodeParameter(returnURL),
+        referenceNo: encodeParameter(referenceNo),
+        subMerchantID: encodeParameter(subMerchantID),
+        transactionAmount: encodeParameter(transactionAmount),
+        payMode: encodeParameter(payMode),
+      },
       encryptionKey
     );
 

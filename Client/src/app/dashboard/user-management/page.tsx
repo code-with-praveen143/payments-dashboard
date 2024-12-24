@@ -23,7 +23,7 @@ import {
 import { toast } from "sonner";
 import { useSignUp } from "@/app/hooks/auth/useAuth";
 import { useGetUsers } from "@/app/hooks/userMangementData/useGetUsers";
-import { UserForm } from "@/app/components/Forms/useForm";
+import { UserForm } from "@/app/forms/useForm";
 import { useRouter } from "next/navigation";
 
 const signUpSchema = z.object({

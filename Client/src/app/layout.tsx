@@ -1,59 +1,13 @@
+// Updated layout.tsx
 "use client";
 
 import { ThemeProvider } from "next-themes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 import "./globals.css";
 import { AppLayout } from "@/components/layout/app-layout";
 import { AuthLayout } from "@/components/layout/auth-layout";
-
-
-const authPages = ["/login", "/signup", "/privacy", "/"];
-const validRoutesPrefixes = [
-  "/dashboard",
-  "/dashboard/student-details",
-  "/dashboard/user-management",
-  "/dashboard/fee-structure",
-  "/dashboard/return-url"
-];
-
-const isValidRoute = (pathname: string) => {
-  return validRoutesPrefixes.some((prefix) => pathname.startsWith(prefix));
-};
-
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const router = useRouter();
-  const pathname = usePathname();
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const checkAuth = () => {
-      try {
-        const token = sessionStorage.getItem("auth_token");
-
-        if (!token && isValidRoute(pathname)) {
-          router.replace("/");
-          return;
-        }
-
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Auth check failed:", error);
-        router.replace("/");
-      }
-    };
-
-    checkAuth();
-  }, [pathname, router]);
-
-  // Your loading.tsx will handle the loading state
-  if (isLoading) {
-    return null;
-  }
-
-  return <>{children}</>;
-};
+import { usePathname } from "next/navigation";
 
 export default function RootLayout({
   children,
@@ -61,8 +15,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const [queryClient] = useState(() => new QueryClient());
+  const hiddenPaths = ["/", "/signup", "/forgot-password"];
   const pathname = usePathname();
-  const isAuthPage = authPages.includes(pathname);
+  const isHidden = hiddenPaths.includes(pathname);
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -74,13 +29,11 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <QueryClientProvider client={queryClient}>
-              <ProtectedRoute>
-                {isAuthPage || !isValidRoute(pathname) ? (
-                  <AuthLayout>{children}</AuthLayout>
-                ) : (
-                  <AppLayout>{children}</AppLayout>
-                )}
-              </ProtectedRoute>
+            {isHidden ? (
+              <AuthLayout>{children}</AuthLayout>
+            ) : (
+              <AppLayout>{children}</AppLayout>
+            )}
           </QueryClientProvider>
         </ThemeProvider>
       </body>
