@@ -28,33 +28,33 @@ const BillingTable = () => {
   ];
 
   return (
-    <div>
-      <h2 className="text-[28px] font-[800px] font-[sans serif] mb-4">Recent Billing</h2>
-      <div className="max-w-fit overflow-x-scroll">
-        <Table className="w-full min-w-[800px] border-collapse border text-left text-sm">
+    <div className="px-4 sm:px-6 lg:px-8">
+      <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-6 text-primary">Recent Billing</h2>
+      <div className="overflow-x-auto">
+        <Table className="w-full min-w-[800px] border-collapse border text-left text-sm lg:text-base">
           <TableHeader>
-            <TableRow className="font-bold">
-              <TableHead className="border border-gray-300 p-2">S.No</TableHead>
-              <TableHead className="border border-gray-300 p-2">Register Number</TableHead>
-              <TableHead className="border border-gray-300 p-2">Student Name</TableHead>
-              <TableHead className="border border-gray-300 p-2">Receipt No</TableHead>
-              <TableHead className="border border-gray-300 p-2">Fees Type</TableHead>
-              <TableHead className="border border-gray-300 p-2">Transaction ID</TableHead>
-              <TableHead className="border border-gray-300 p-2">Transaction Date</TableHead>
-              <TableHead className="border border-gray-300 p-2">Amount</TableHead>
+            <TableRow className="bg-gray-100 font-semibold">
+              <TableHead className="border border-gray-300 px-4 py-2">S.No</TableHead>
+              <TableHead className="border border-gray-300 px-4 py-2">Register Number</TableHead>
+              <TableHead className="border border-gray-300 px-4 py-2">Student Name</TableHead>
+              <TableHead className="border border-gray-300 px-4 py-2">Receipt No</TableHead>
+              <TableHead className="border border-gray-300 px-4 py-2">Fees Type</TableHead>
+              <TableHead className="border border-gray-300 px-4 py-2">Transaction ID</TableHead>
+              <TableHead className="border border-gray-300 px-4 py-2">Transaction Date</TableHead>
+              <TableHead className="border border-gray-300 px-4 py-2">Amount</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {data.map((row, idx) => (
-              <TableRow key={idx}>
-                <TableCell className="border border-gray-300 p-2">{row.sNo}</TableCell>
-                <TableCell className="border border-gray-300 p-2">{row.regNo}</TableCell>
-                <TableCell className="border border-gray-300 p-2">{row.name}</TableCell>
-                <TableCell className="border border-gray-300 p-2">{row.receiptNo}</TableCell>
-                <TableCell className="border border-gray-300 p-2">{row.feesType}</TableCell>
-                <TableCell className="border border-gray-300 p-2">{row.transactionId}</TableCell>
-                <TableCell className="border border-gray-300 p-2">{row.date}</TableCell>
-                <TableCell className="border border-gray-300 p-2">{row.amount}</TableCell>
+              <TableRow key={idx} className="hover:bg-gray-50 transition-all">
+                <TableCell className="border border-gray-300 px-4 py-2">{row.sNo}</TableCell>
+                <TableCell className="border border-gray-300 px-4 py-2">{row.regNo}</TableCell>
+                <TableCell className="border border-gray-300 px-4 py-2">{row.name}</TableCell>
+                <TableCell className="border border-gray-300 px-4 py-2">{row.receiptNo}</TableCell>
+                <TableCell className="border border-gray-300 px-4 py-2">{row.feesType}</TableCell>
+                <TableCell className="border border-gray-300 px-4 py-2">{row.transactionId}</TableCell>
+                <TableCell className="border border-gray-300 px-4 py-2">{row.date}</TableCell>
+                <TableCell className="border border-gray-300 px-4 py-2">{row.amount}</TableCell>
               </TableRow>
             ))}
           </TableBody>

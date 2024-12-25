@@ -24,7 +24,7 @@ exports.createEncryptedURL = async (req, res) => {
         merchantID: encodeParameter(merchantID),
         mandatoryFields: encodeParameter(mandatoryFields),
         optionalFields: encodeParameter(optionalFields),
-        returnURL: encodeParameter(returnURL),
+        returnURL: encodeParameter('http://localhost:3000/dashboard/return-url'),
         referenceNo: encodeParameter(referenceNo),
         subMerchantID: encodeParameter(subMerchantID),
         transactionAmount: encodeParameter(transactionAmount),

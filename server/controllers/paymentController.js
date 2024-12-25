@@ -14,17 +14,38 @@ exports.initiatePayment = async (req, res) => {
 exports.verifyPayment = async (req, res) => {
   try {
     // ICICI Eazypay sends payment data to this endpoint
-    const paymentData = req.body;
+    const paymentData = req.body || req.query; // Handle both POST and GET responses
+
+    console.log('Payment Response Received:', paymentData);
+
+    const { status, orderId, transactionId, message, amount } = paymentData;
 
     // Verify the payment
     const payment = await verifyPayment(paymentData);
 
-    // Redirect user to a frontend page with status
-    const status = payment.status === 'success' ? 'success=true' : 'success=false';
-    res.redirect(`https://khit.campusify.io/dashboard/return-url?${status}`);
+    // Determine the status
+    let redirectStatus = 'success=false'; // Default to failure
+    if (payment.status === 'success') {
+      redirectStatus = 'success=true';
+    }
+
+    // Redirect user with status and additional parameters
+    res.redirect(
+      `https://khit.campusify.io/dashboard/return-url?${redirectStatus}&orderId=${orderId}&transactionId=${transactionId}&message=${encodeURIComponent(
+        message || 'Transaction failed'
+      )}&amount=${amount}`
+    );
   } catch (error) {
     console.error('Error verifying payment:', error.message);
-    res.redirect('https://khit.campusify.io/dashboard/return-url?success=false');
+
+    // Redirect to the return URL with failure details
+    res.redirect(
+      `https://khit.campusify.io/dashboard/return-url?success=false&message=${encodeURIComponent(
+        error.message
+      )}`
+    );
   }
 };
+
+
 

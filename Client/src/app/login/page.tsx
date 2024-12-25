@@ -23,8 +23,8 @@ import {
 } from "@/components/ui/form";
 import { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import logo3 from "@/utils/logo3.png";
 import logo from "@/utils/logo.png";
+import logo4 from "@/utils/logo4.png";
 import { useLogin } from "../hooks/auth/useAuth";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
@@ -91,7 +91,7 @@ function LoginPageContent() {
           <div className="relative h-64 w-full">
             {isClient && (
               <ClientSideImage
-                src={logo3}
+                src={logo4}
                 alt="Campusify Logo"
                 layout="fill"
                 objectFit="contain"

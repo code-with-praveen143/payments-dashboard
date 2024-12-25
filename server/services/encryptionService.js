@@ -1,6 +1,4 @@
-// services/encryptionService.js
 const crypto = require('crypto');
-const PaymentRequest = require('../models/PaymentRequest');
 
 const encryptValue = (value, encryptionKey) => {
   const cipher = crypto.createCipheriv('aes-128-ecb', encryptionKey, null);
@@ -27,10 +25,9 @@ const generateEncryptedURL = async (params, encryptionKey) => {
     `&Reference No=${encryptedParams['Reference No']}` +
     `&submerchantid=${encryptedParams.submerchantid}` +
     `&transaction amount=${encryptedParams['transaction amount']}` +
-    `&paymode=${encryptedParams['paymode']}`;
+    `&paymode=${encryptedParams.paymode}`;
 
   return encryptedURL;
 };
-
 
 module.exports = { generateEncryptedURL };

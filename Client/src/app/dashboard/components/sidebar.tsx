@@ -31,7 +31,7 @@ const sidebarNavItems = [
     icon: Bus
   },
   {
-    title: "Students",
+    title: "Student Profile",
     href: "/dashboard/student-management",
     icon: Users,
   },
@@ -59,10 +59,11 @@ const sidebarNavItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
-
+  const role = typeof window !== "undefined" && sessionStorage.getItem('role');
+  console.log('Sidebar ROLE', role)
   const filteredNavItems = sidebarNavItems.filter(item => {    
     if (role === "student") {
-      return ["Dashboard", "Students", "Payment History"].includes(item.title);
+      return ["Dashboard", "Student Profile", "Payment History"].includes(item.title);
     } else if (role === "admin") {
       return !["Students"].includes(item.title);
     } else if (role === "accountant") {

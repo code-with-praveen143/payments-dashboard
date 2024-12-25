@@ -32,14 +32,13 @@ const signUpSchema = z.object({
   password: z
     .string()
     .min(8, { message: "Password must be at least 8 characters" }),
-  role: z.enum(['admin', 'accountant']),
+  role: z.enum(["admin", "accountant"]),
 });
 
 type SignupRequest = z.infer<typeof signUpSchema>;
 
 export default function UserManagementComponent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const {
@@ -52,7 +51,6 @@ export default function UserManagementComponent() {
   });
 
   const { data: users, isLoading } = useGetUsers();
-
   const signUpMutation = useSignUp();
 
   const onSignUpSubmit = async (data: any) => {
@@ -69,7 +67,7 @@ export default function UserManagementComponent() {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6 lg:p-8">
       <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
         <h1 className="text-2xl md:text-3xl font-semibold">
           User Management
@@ -84,82 +82,76 @@ export default function UserManagementComponent() {
         </Button>
       </div>
       <div className="rounded-md border overflow-x-auto">
-        <Table className="min-w-full">
-          <TableHeader>
-            <TableRow >
-              <TableHead className="w-[100px] border-x border-b text-sm sm:text-base">
-                S.No
-              </TableHead>
-              <TableHead className="border-x border-b text-sm sm:text-base">
-                Staff Code
-              </TableHead>
-              <TableHead className="border-x border-b text-sm sm:text-base">
-                Accountant Name
-              </TableHead>
-              <TableHead className="border-x border-b text-sm sm:text-base">
-                E-mail id
-              </TableHead>
-              <TableHead className="border-x border-b text-sm sm:text-base">
-                Type
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading
-              ? [...Array(5)].map((_, index) => (
-                  <TableRow key={index} className="even:bg-[#EBF3FA]/30">
-                    <TableCell className="border-x">
-                      <div className="h-4 w-8 skeleton bg-gray-300 rounded animate-pulse" />
-                    </TableCell>
-                    <TableCell className="border-x">
-                      <div className="h-4 w-16 skeleton bg-gray-300 rounded animate-pulse" />
-                    </TableCell>
-                    <TableCell className="border-x">
-                      <div className="h-4 w-24 skeleton bg-gray-300 rounded animate-pulse" />
-                    </TableCell>
-                    <TableCell className="border-x">
-                      <div className="h-4 w-32 skeleton bg-gray-300 rounded animate-pulse" />
-                    </TableCell>
-                    <TableCell className="border-x">
-                      <div className="h-4 w-20 skeleton bg-gray-300 rounded animate-pulse" />
-                    </TableCell>
-                  </TableRow>
-                ))
-              : users?.map((user, index) => (
-                  <TableRow key={user._id} className="even:bg-[#EBF3FA]/30">
-                    <TableCell className="font-medium border-x text-sm sm:text-base">
-                      {index + 1}
-                    </TableCell>
-                    <TableCell className="border-x text-sm sm:text-base">
-                      {user._id}
-                    </TableCell>
-                    <TableCell className="border-x text-sm sm:text-base">
-                      {user.name}
-                    </TableCell>
-                    <TableCell className="border-x text-sm sm:text-base">
-                      {user.email}
-                    </TableCell>
-                    <TableCell className="border-x text-sm sm:text-base">
-                      {user.role}
-                    </TableCell>
-                  </TableRow>
-                ))}
-          </TableBody>
-        </Table>
+        <div className="max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-gray-200">
+          <Table className="min-w-full">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[100px] border-x border-b text-sm sm:text-base">
+                  S.No
+                </TableHead>
+                <TableHead className="border-x border-b text-sm sm:text-base">
+                  Staff Code
+                </TableHead>
+                <TableHead className="border-x border-b text-sm sm:text-base">
+                  Accountant Name
+                </TableHead>
+                <TableHead className="border-x border-b text-sm sm:text-base">
+                  E-mail id
+                </TableHead>
+                <TableHead className="border-x border-b text-sm sm:text-base">
+                  Type
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading
+                ? [...Array(5)].map((_, index) => (
+                    <TableRow key={index} className="even:bg-[#EBF3FA]/30">
+                      <TableCell className="border-x">
+                        <div className="h-4 w-8 skeleton bg-gray-300 rounded animate-pulse" />
+                      </TableCell>
+                      <TableCell className="border-x">
+                        <div className="h-4 w-16 skeleton bg-gray-300 rounded animate-pulse" />
+                      </TableCell>
+                      <TableCell className="border-x">
+                        <div className="h-4 w-24 skeleton bg-gray-300 rounded animate-pulse" />
+                      </TableCell>
+                      <TableCell className="border-x">
+                        <div className="h-4 w-32 skeleton bg-gray-300 rounded animate-pulse" />
+                      </TableCell>
+                      <TableCell className="border-x">
+                        <div className="h-4 w-20 skeleton bg-gray-300 rounded animate-pulse" />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                : users?.map((user, index) => (
+                    <TableRow key={user._id} className="even:bg-[#EBF3FA]/30">
+                      <TableCell className="font-medium border-x text-sm sm:text-base">
+                        {index + 1}
+                      </TableCell>
+                      <TableCell className="border-x text-sm sm:text-base">
+                        {user._id}
+                      </TableCell>
+                      <TableCell className="border-x text-sm sm:text-base">
+                        {user.name}
+                      </TableCell>
+                      <TableCell className="border-x text-sm sm:text-base">
+                        {user.email}
+                      </TableCell>
+                      <TableCell className="border-x text-sm sm:text-base">
+                        {user.role}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[425px] w-full">
           <DialogHeader>
             <DialogTitle className="text-lg md:text-xl">Add New User</DialogTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsModalOpen(false)}
-              className="absolute right-4 top-4"
-            >
-              <span className="sr-only">Close</span>
-            </Button>
           </DialogHeader>
           <UserForm onSubmit={onSignUpSubmit} />
           {error && <p className="text-red-500 text-center mt-4 text-sm">{error}</p>}

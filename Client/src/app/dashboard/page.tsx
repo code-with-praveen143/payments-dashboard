@@ -1,20 +1,20 @@
 // pages/dashboard.js
 import React from "react";
-import { Sidebar } from "./components/sidebar";
 import BillingTable from "./components/billing-table";
 import RevenueSummary from "./components/revenue-card";
 
-
-
 export default function Dashboard() {
-
   return (
-    <div className="flex ">  
-      {/* Main Content */}
-      <div className="flex-1 p-6">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-8">
+      {/* Revenue Summary Section */}
+      <section className="w-full">
         <RevenueSummary />
+      </section>
+
+      {/* Billing Table Section */}
+      <section className="w-full">
         <BillingTable />
-      </div>
+      </section>
     </div>
   );
 }

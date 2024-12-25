@@ -116,7 +116,9 @@ export function Navbar() {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
-
+  const storedUsername = typeof window !== "undefined" && sessionStorage.getItem("username");
+  const storedEmail = typeof window !== "undefined" && sessionStorage.getItem("email");
+  const auth_token = typeof window !== "undefined" && sessionStorage.getItem("auth_token");
   React.useEffect(() => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth < 1024);
@@ -152,7 +154,8 @@ export function Navbar() {
       .slice(0, 2);
   };
   const getFilteredNavItems = () => {
-    
+    const role = typeof window !== "undefined" && sessionStorage.getItem('role');
+    console.log("NAVBAR ROLE: ", role)
       if (role === "student") {
         return allNavItems.filter((item) =>
           ["Dashboard", "Students", "Payment History"].includes(item.title)
