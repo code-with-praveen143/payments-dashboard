@@ -155,7 +155,6 @@ export function Navbar() {
   };
   const getFilteredNavItems = () => {
     const role = typeof window !== "undefined" && sessionStorage.getItem('role');
-    console.log("NAVBAR ROLE: ", role)
       if (role === "student") {
         return allNavItems.filter((item) =>
           ["Dashboard", "Students", "Payment History"].includes(item.title)

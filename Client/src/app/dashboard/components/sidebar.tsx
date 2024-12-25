@@ -60,7 +60,6 @@ const sidebarNavItems = [
 export function Sidebar() {
   const pathname = usePathname();
   const role = typeof window !== "undefined" && sessionStorage.getItem('role');
-  console.log('Sidebar ROLE', role)
   const filteredNavItems = sidebarNavItems.filter(item => {    
     if (role === "student") {
       return ["Dashboard", "Student Profile", "Payment History"].includes(item.title);
