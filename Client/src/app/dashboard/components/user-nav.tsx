@@ -54,7 +54,7 @@ const allNavItems = [
     icon: Bus,
   },
   {
-    title: "Students",
+    title: "Student Profile",
     href: "/dashboard/student-management",
     icon: Users,
   },
@@ -157,13 +157,13 @@ export function Navbar() {
     const role = typeof window !== "undefined" && sessionStorage.getItem('role');
       if (role === "student") {
         return allNavItems.filter((item) =>
-          ["Dashboard", "Students", "Payment History"].includes(item.title)
+          ["Dashboard", "Student Profile", "Payment History"].includes(item.title)
         );
       } else if (role === "admin") {
-        return allNavItems.filter((item) => !["Students"].includes(item.title));
+        return allNavItems.filter((item) => !["Student Profile"].includes(item.title));
       } else if (role === "accountant") {
         return allNavItems.filter(
-          (item) => !["Students", "User Management"].includes(item.title)
+          (item) => !["Student Profile", "User Management"].includes(item.title)
         );
       
     }
