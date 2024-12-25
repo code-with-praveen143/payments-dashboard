@@ -1,5 +1,4 @@
 import { useQuery, QueryClient } from '@tanstack/react-query'
-
 export type UserRole = 'admin' | 'accountant' | 'student'
 
 export interface User {
@@ -12,10 +11,9 @@ export interface User {
 }
 
 async function fetchUsers(): Promise<User[]> {
-  const auth_token = sessionStorage.getItem('auth_token')
   const response = await fetch('https://osaw.in/v1/payment/api/users', {
     headers: {
-      Authorization: `Bearer ${auth_token}`
+      Authorization: `Bearer ${sessionStorage.getItem('auth_token')}`
     }
   })
   if (!response.ok) {

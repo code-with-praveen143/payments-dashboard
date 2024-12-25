@@ -1,3 +1,4 @@
+import { auth_token } from "@/app/@types/data";
 import { QueryClient, useQuery } from "@tanstack/react-query";
 
 interface Bus{
@@ -6,7 +7,6 @@ interface Bus{
   fee: number;
 }
 async function fetchBusFees(): Promise<Bus[]> {
-    const auth_token = sessionStorage.getItem('auth_token')
     const response = await fetch('https://osaw.in/v1/payment/api/busRoutes', {
       headers: {
         Authorization: `Bearer ${auth_token}`

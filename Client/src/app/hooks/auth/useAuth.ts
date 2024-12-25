@@ -58,6 +58,9 @@ export const useLogin = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
+      if(response.ok){
+        console.log("Response Successfull", response.ok)
+      }
       if (!response.ok) {
         throw new Error("Login failed");
       }

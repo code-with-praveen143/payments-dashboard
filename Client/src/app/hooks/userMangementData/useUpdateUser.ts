@@ -1,4 +1,5 @@
 import { User } from '@/app/@types/user';
+import { auth_token } from '@/app/@types/data';
 import { BASE_URL } from '@/app/utils/constants';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -9,7 +10,7 @@ async function updateUser(variables: { userId: string; userData: Partial<User> }
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${sessionStorage.getItem("auth_token")}`,
+      Authorization: `Bearer ${auth_token}`,
     },
     body: JSON.stringify(userData),
   });

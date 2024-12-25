@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Bus, LayoutDashboard, UserCog, Wallet, Users, Banknote, Link2, Landmark } from 'lucide-react';
+import { role } from "@/app/@types/data";
 
 const sidebarNavItems = [
   {
@@ -59,9 +60,7 @@ const sidebarNavItems = [
 export function Sidebar() {
   const pathname = usePathname();
 
-  const filteredNavItems = sidebarNavItems.filter(item => {
-    const role = sessionStorage.getItem('role');
-    
+  const filteredNavItems = sidebarNavItems.filter(item => {    
     if (role === "student") {
       return ["Dashboard", "Students", "Payment History"].includes(item.title);
     } else if (role === "admin") {

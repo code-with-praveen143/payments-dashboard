@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { BASE_URL } from '@/app/utils/constants';
+import { auth_token } from '@/app/@types/data';
 
 
 interface RegistrationPayload {
@@ -30,7 +31,7 @@ export function useGetStudents() {
     queryFn: async () => {
       const response = await fetch(`${API_BASE_URL}/students`, {
         headers: {
-          'Authorization': `Bearer ${sessionStorage.getItem('auth_token')}`,
+          'Authorization': `Bearer ${auth_token}`,
         },
       })
       if (!response.ok) {
@@ -49,7 +50,7 @@ export function useRegisterStudentForEvent() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${sessionStorage.getItem('auth_token')}`,
+          'Authorization': `Bearer ${auth_token}`,
         },
         body: JSON.stringify({ userId, eventId }),
       });

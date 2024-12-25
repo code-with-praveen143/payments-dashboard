@@ -1,3 +1,4 @@
+import { auth_token } from '@/app/@types/data';
 import { BASE_URL } from '@/app/utils/constants';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -7,7 +8,7 @@ async function deleteUser(userId: string): Promise<void> {
   const response = await fetch(`${BASE_URL}/api/users/${userId}`, {
     method: 'DELETE',
     headers: {
-      Authorization: `Bearer ${sessionStorage.getItem("auth_token")}`,
+      Authorization: `Bearer ${auth_token}`,
     },
   });
 

@@ -5,7 +5,16 @@ import { useTheme } from "next-themes";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { LayoutDashboard, UserCog, CalendarRange, Bus, Users, Banknote,Link2,Landmark } from 'lucide-react';
+import {
+  LayoutDashboard,
+  UserCog,
+  CalendarRange,
+  Bus,
+  Users,
+  Banknote,
+  Link2,
+  Landmark,
+} from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -21,6 +30,7 @@ import {
 import * as NavigationMenu from "@radix-ui/react-navigation-menu";
 import { Bell, LogOut, User, Sun, Moon, Menu } from "lucide-react";
 import logo from "../../../utils/logo.png";
+import { storedUsername, storedEmail, auth_token, role } from "@/app/@types/data";
 
 const allNavItems = [
   {
@@ -67,7 +77,7 @@ const allNavItems = [
     title: "Payment Gateway",
     href: "/dashboard/payment-gateway",
     icon: Landmark,
-  }
+  },
 ];
 
 const ThemeToggle = () => {
@@ -99,7 +109,8 @@ const NotificationBell = () => (
 export function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = React.useState(false);
-  const isMobile = typeof window !== "undefined" ? window.innerWidth < 1024 : false;
+  const isMobile =
+    typeof window !== "undefined" ? window.innerWidth < 1024 : false;
   const [windowWidth, setWindowWidth] = React.useState(isMobile);
   const { theme, setTheme } = useTheme();
   const router = useRouter();
@@ -116,9 +127,6 @@ export function Navbar() {
   }, []);
 
   useEffect(() => {
-    const storedUsername = sessionStorage.getItem("username");
-    const storedEmail = sessionStorage.getItem("email");
-
     if (storedUsername) setUsername(storedUsername);
     if (storedEmail) setEmail(storedEmail);
   }, []);
@@ -132,8 +140,7 @@ export function Navbar() {
   };
 
   const getLogoutText = () => {
-    const authToken = sessionStorage.getItem("auth_token");
-    return authToken ? "Logout" : "Login";
+    return auth_token ? "Logout" : "Login";
   };
 
   const getInitials = (name: string) => {
@@ -144,17 +151,21 @@ export function Navbar() {
       .toUpperCase()
       .slice(0, 2);
   };
-
   const getFilteredNavItems = () => {
-    const role = sessionStorage.getItem('role');
     
-    if (role === "student") {
-      return allNavItems.filter(item => ["Dashboard", "Students", "Payment History"].includes(item.title));
-    } else if (role === "admin") {
-      return allNavItems.filter(item => !["Students",].includes(item.title));
-    } else if (role === "accountant") {
-      return allNavItems.filter(item => !["Students", "User Management"].includes(item.title));
+      if (role === "student") {
+        return allNavItems.filter((item) =>
+          ["Dashboard", "Students", "Payment History"].includes(item.title)
+        );
+      } else if (role === "admin") {
+        return allNavItems.filter((item) => !["Students"].includes(item.title));
+      } else if (role === "accountant") {
+        return allNavItems.filter(
+          (item) => !["Students", "User Management"].includes(item.title)
+        );
+      
     }
+
     return allNavItems;
   };
 
@@ -195,7 +206,10 @@ export function Navbar() {
                       className="relative h-8 w-8 rounded-full"
                     >
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src="/placeholder-avatar.jpg" alt={username} />
+                        <AvatarImage
+                          src="/placeholder-avatar.jpg"
+                          alt={username}
+                        />
                         <AvatarFallback>{getInitials(username)}</AvatarFallback>
                       </Avatar>
                     </Button>
@@ -203,13 +217,21 @@ export function Navbar() {
                   <DropdownMenuContent className="w-56" align="end">
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{username}</p>
-                        <p className="text-xs leading-none text-muted-foreground">{email}</p>
+                        <p className="text-sm font-medium leading-none">
+                          {username}
+                        </p>
+                        <p className="text-xs leading-none text-muted-foreground">
+                          {email}
+                        </p>
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
-                      <DropdownMenuItem onClick={() => router.push("/dashboard/student-management")}>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          router.push("/dashboard/student-management")
+                        }
+                      >
                         <User className="mr-2 h-4 w-4" />
                         <span>Profile</span>
                       </DropdownMenuItem>
@@ -218,7 +240,9 @@ export function Navbar() {
                     <DropdownMenuItem
                       onClick={handleLogout}
                       className={`${
-                        sessionStorage.getItem("auth_token") ? "text-red-600 dark:text-red-400" : ""
+                        auth_token
+                          ? "text-red-600 dark:text-red-400"
+                          : ""
                       }`}
                     >
                       <LogOut className="mr-2 h-4 w-4" />
@@ -237,7 +261,10 @@ export function Navbar() {
                     className="relative h-8 w-8 rounded-full"
                   >
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src="/placeholder-avatar.jpg" alt={username} />
+                      <AvatarImage
+                        src="/placeholder-avatar.jpg"
+                        alt={username}
+                      />
                       <AvatarFallback>{getInitials(username)}</AvatarFallback>
                     </Avatar>
                   </Button>
@@ -245,17 +272,29 @@ export function Navbar() {
                 <DropdownMenuContent className="w-56" align="end">
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{username}</p>
-                      <p className="text-xs leading-none text-muted-foreground">{email}</p>
+                      <p className="text-sm font-medium leading-none">
+                        {username}
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {email}
+                      </p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
-                    <DropdownMenuItem onClick={() => router.push("/dashboard/student-management")}>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        router.push("/dashboard/student-management")
+                      }
+                    >
                       <User className="mr-2 h-4 w-4" />
                       <span>Profile</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        setTheme(theme === "dark" ? "light" : "dark")
+                      }
+                    >
                       {theme === "dark" ? (
                         <Sun className="mr-2 h-4 w-4" />
                       ) : (
@@ -307,5 +346,3 @@ export function Navbar() {
     </>
   );
 }
-
- 

@@ -1,3 +1,4 @@
+import { auth_token } from "@/app/@types/data";
 import { useMutation } from "@tanstack/react-query";
 
 export function useUploadStudents() {
@@ -6,7 +7,6 @@ export function useUploadStudents() {
         const formData = new FormData();
         formData.append("file", file);
   
-        const authToken = sessionStorage.getItem("auth_token");
         
         const response = await fetch(
           "https://osaw.in/v1/payment/api/students/upload-students",
@@ -14,7 +14,7 @@ export function useUploadStudents() {
             method: "POST",
             body: formData,
             headers: {
-              Authorization: `Bearer ${authToken}`,
+              Authorization: `Bearer ${auth_token}`,
             },
           }
         );

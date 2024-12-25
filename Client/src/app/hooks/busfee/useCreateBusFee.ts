@@ -1,4 +1,5 @@
 // utils/busFeeAPI.ts
+import { auth_token } from "@/app/@types/data";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface BusFee {
@@ -12,7 +13,6 @@ const API_URL = "https://osaw.in/v1/payment/api/busRoutes";
 
 export const useAddBusFee = () => {
   const queryClient = useQueryClient();
-  const authToken = sessionStorage.getItem("auth_token");
 
   return useMutation({
     mutationFn: async (newBusFee: Omit<BusFee, "_id">) => {
@@ -20,7 +20,7 @@ export const useAddBusFee = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
+          Authorization: `Bearer ${auth_token}`,
         },
         body: JSON.stringify(newBusFee),
       });
