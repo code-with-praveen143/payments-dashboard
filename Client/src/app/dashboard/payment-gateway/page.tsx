@@ -61,7 +61,7 @@ export default function EncryptURL() {
               Encrypted URL Generated Successfully!
             </p>
             <Link
-              href="/dashboard/return-url"
+              href={encryptedURL}
               className="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
             >
               Proceed to Payment

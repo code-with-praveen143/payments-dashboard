@@ -5,9 +5,17 @@ const encryptionController = require('../controllers/encryptionController');
 
 /**
  * @swagger
+ * tags:
+ *   name: Encryption
+ *   description: APIs to manage Encryption
+ */
+
+/**
+ * @swagger
  * /api/encryption/generate:
  *   post:
  *     summary: Generate Encrypted ICICI Payment URL
+ *     tags: [Encryption]
  *     requestBody:
  *       required: true
  *       content:

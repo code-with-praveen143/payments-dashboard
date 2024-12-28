@@ -1,51 +1,31 @@
-// controllers/paymentController.js
-const { initiatePayment, verifyPayment } = require('../services/paymentService');
+const PaymentHistory = require('../models/PaymentHistory');
+const logger = require('../utils/logger');
 
-exports.initiatePayment = async (req, res) => {
+// Initiate a payment
+const initiatePayment = async (req, res) => {
   try {
-    const { orderId, amount } = req.body;
-    const payment = await initiatePayment(orderId, amount);
-    res.status(200).json(payment);
+    const { studentId, amount, gatewayName } = req.body;
+
+    const payment = new PaymentHistory({ studentId, amount, gatewayName });
+    await payment.save();
+
+    logger.info(`Payment initiated for studentId: ${studentId}, amount: ${amount}`);
+    res.status(200).json({ message: 'Payment initiated successfully', payment });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    logger.error(`Error initiating payment: ${error.message}`);
+    res.status(500).json({ message: 'Error initiating payment' });
   }
 };
 
-exports.verifyPayment = async (req, res) => {
+// Get payment history
+const getPaymentHistory = async (req, res) => {
   try {
-    // ICICI Eazypay sends payment data to this endpoint
-    const paymentData = req.body || req.query; // Handle both POST and GET responses
-
-    console.log('Payment Response Received:', paymentData);
-
-    const { status, orderId, transactionId, message, amount } = paymentData;
-
-    // Verify the payment
-    const payment = await verifyPayment(paymentData);
-
-    // Determine the status
-    let redirectStatus = 'success=false'; // Default to failure
-    if (payment.status === 'success') {
-      redirectStatus = 'success=true';
-    }
-
-    // Redirect user with status and additional parameters
-    res.redirect(
-      `https://khit.campusify.io/dashboard/return-url?${redirectStatus}&orderId=${orderId}&transactionId=${transactionId}&message=${encodeURIComponent(
-        message || 'Transaction failed'
-      )}&amount=${amount}`
-    );
+    const payments = await PaymentHistory.find().populate('studentId', 'name email');
+    res.status(200).json(payments);
   } catch (error) {
-    console.error('Error verifying payment:', error.message);
-
-    // Redirect to the return URL with failure details
-    res.redirect(
-      `https://khit.campusify.io/dashboard/return-url?success=false&message=${encodeURIComponent(
-        error.message
-      )}`
-    );
+    logger.error(`Error fetching payment history: ${error.message}`);
+    res.status(500).json({ message: 'Error fetching payment history' });
   }
 };
 
-
-
+module.exports = { initiatePayment, getPaymentHistory };

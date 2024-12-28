@@ -1,22 +1,16 @@
 // utils/busFeeAPI.ts
+import { BusFee } from "@/app/@types/bus";
 import { auth_token } from "@/app/@types/data";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { BASE_URL } from '@/app/utils/constants';
 
-interface BusFee {
-  _id?: string;
-  route: string;
-  fee: number;
-}
-
-// Replace with your actual API endpoint
-const API_URL = "https://osaw.in/v1/payment/api/busRoutes";
 
 export const useAddBusFee = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (newBusFee: Omit<BusFee, "_id">) => {
-      const response = await fetch(API_URL, {
+      const response = await fetch(`${BASE_URL}/api/busRoutes`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -24,8 +18,10 @@ export const useAddBusFee = () => {
         },
         body: JSON.stringify(newBusFee),
       });
+
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Network response was not ok");
       }
       return response.json();
     },

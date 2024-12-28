@@ -1,17 +1,17 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Plus } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { useState } from "react";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -19,31 +19,63 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { useAddBusFee } from '@/app/hooks/busfee/useCreateBusFee'
-import { useGetBusFees } from '@/app/hooks/busfee/useGetBusFees'
+} from "@/components/ui/table";
+import { useAddBusFee } from "@/app/hooks/busfee/useCreateBusFee";
+import { useGetBusFees } from "@/app/hooks/busfee/useGetBusFees";
+import { SubRoute } from "@/app/@types/bus";
 
 export default function FeeStructure() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [newRoute, setNewRoute] = useState('')
-  const [newFee, setNewFee] = useState('')
-  const { data: busFees } = useGetBusFees()
-  const addBusFeeMutation = useAddBusFee()
+  const [isOpen, setIsOpen] = useState(false);
+  const [subRouteModal, setSubRouteModal] = useState<SubRoute[] | null>(null);
+  const [newRoute, setNewRoute] = useState("");
+  const [newFee, setNewFee] = useState("");
+  const [noOfSeats, setNoOfSeats] = useState("");
+  const [filledSeats, setFilledSeats] = useState("0");
+  const [subRoutes, setSubRoutes] = useState<SubRoute[]>([
+    { stationName: "", stationFee: 0 },
+  ]);
+  const { data: busFees } = useGetBusFees();
+  const addBusFeeMutation = useAddBusFee();
+
+  const handleSubRouteChange = (
+    index: number,
+    key: keyof SubRoute,
+    value: string | number
+  ) => {
+    const updatedSubRoutes = [...subRoutes];
+    updatedSubRoutes[index] = {
+      ...updatedSubRoutes[index],
+      [key]: key === "stationFee" ? Number(value) : value,
+    };
+    setSubRoutes(updatedSubRoutes);
+  };
+
+  const addSubRoute = () => {
+    setSubRoutes([...subRoutes, { stationName: "", stationFee: 0 }]);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     addBusFeeMutation.mutate({
       route: newRoute,
       fee: Number(newFee),
-    })
-    setIsOpen(false)
-    setNewRoute('')
-    setNewFee('')
-  }
+      noOfSeats: Number(noOfSeats),
+      filledSeats: Number(filledSeats),
+      subRoutes: subRoutes.filter(
+        (subRoute) => subRoute.stationName && subRoute.stationFee
+      ),
+      isAvailable: true,
+    });
+    setIsOpen(false);
+    setNewRoute("");
+    setNewFee("");
+    setNoOfSeats("");
+    setFilledSeats("0");
+    setSubRoutes([{ stationName: "", stationFee: 0 }]);
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Main Content */}
       <div className="flex-1 p-4 sm:p-6 lg:p-8">
         <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
           <h1 className="text-2xl font-semibold">Fee Structure</h1>
@@ -80,12 +112,72 @@ export default function FeeStructure() {
                     required
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="noOfSeats">Number of Seats</Label>
+                  <Input
+                    id="noOfSeats"
+                    type="number"
+                    value={noOfSeats}
+                    onChange={(e) => setNoOfSeats(e.target.value)}
+                    placeholder="Enter total number of seats"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="filledSeats">Filled Seats</Label>
+                  <Input
+                    id="filledSeats"
+                    type="number"
+                    value={filledSeats}
+                    onChange={(e) => setFilledSeats(e.target.value)}
+                    placeholder="Enter filled seats (default 0)"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Sub-Routes</Label>
+                  {subRoutes.map((subRoute, index) => (
+                    <div key={index} className="flex gap-2">
+                      <Input
+                        value={subRoute.stationName}
+                        onChange={(e) =>
+                          handleSubRouteChange(
+                            index,
+                            "stationName",
+                            e.target.value
+                          )
+                        }
+                        placeholder="Station Name"
+                        required
+                      />
+                      <Input
+                        type="number"
+                        value={subRoute.stationFee}
+                        onChange={(e) =>
+                          handleSubRouteChange(
+                            index,
+                            "stationFee",
+                            e.target.value
+                          )
+                        }
+                        placeholder="Station Fee"
+                        required
+                      />
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    onClick={addSubRoute}
+                    className="mt-2 w-full bg-gray-200 hover:bg-gray-300 text-sm"
+                  >
+                    Add Sub-Route
+                  </Button>
+                </div>
                 <Button
                   type="submit"
                   className="w-full"
                   disabled={addBusFeeMutation.isPending}
                 >
-                  {addBusFeeMutation.isPending ? 'Adding...' : 'Add Fee'}
+                  {addBusFeeMutation.isPending ? "Adding..." : "Add Fee"}
                 </Button>
               </form>
             </DialogContent>
@@ -98,24 +190,60 @@ export default function FeeStructure() {
               <TableRow className="bg-[#76946A]">
                 <TableHead className="text-white w-24">S.No</TableHead>
                 <TableHead className="text-white">Bus Routes</TableHead>
+                <TableHead className="text-white">No of Seats</TableHead>
+                <TableHead className="text-white">Available Seats</TableHead>
                 <TableHead className="text-white text-right">Fee</TableHead>
+                <TableHead className="text-white text-right">Sub-Routes</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {busFees?.map((busfee, index) => (
-                <TableRow key={busfee._id} className="hover:bg-gray-50 transition">
+                <TableRow
+                  key={busfee._id}
+                  className="hover:bg-gray-50 transition"
+                >
                   <TableCell className="font-medium">
-                    {String(index + 1).padStart(2, '0')}
+                    {String(index + 1).padStart(2, "0")}
                   </TableCell>
                   <TableCell>{busfee.route}</TableCell>
+                  <TableCell>{busfee.noOfSeats}</TableCell>
+                  <TableCell>
+                    {busfee.noOfSeats - busfee.filledSeats}
+                  </TableCell>
                   <TableCell className="text-right">₹{busfee.fee}</TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      onClick={() => setSubRouteModal(busfee.subRoutes)}
+                      size="sm"
+                      className="bg-blue-500 hover:bg-blue-600"
+                    >
+                      View
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </div>
       </div>
-    </div>
-  )
-}
 
+      {subRouteModal && (
+        <Dialog open={Boolean(subRouteModal)} onOpenChange={() => setSubRouteModal(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Sub-Routes</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-2">
+              {subRouteModal.map((subRoute, index) => (
+                <div key={index} className="flex justify-between">
+                  <span>{subRoute.stationName}</span>
+                  <span>₹{subRoute.stationFee}</span>
+                </div>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+    </div>
+  );
+}

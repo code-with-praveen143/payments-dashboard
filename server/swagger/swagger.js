@@ -1,21 +1,41 @@
-// swagger.js
-const swaggerJsDoc = require('swagger-jsdoc');
-const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
 
-const swaggerOptions = {
-  swaggerDefinition: {
+// Swagger options
+const options = {
+  definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Payment Gateway API',
+      title: 'Fee Management System API',
       version: '1.0.0',
-      description: 'ICICI Eazypay Integration',
+      description: 'API documentation for the Fee Management System',
     },
+    servers: [
+      {
+        url: 'http://localhost:5001', // Local server URL
+        description: 'Local development server',
+      },
+      {
+        url: 'https://osaw.in/v1/payment', // Production server URL
+        description: 'Production server',
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT', // Optional, for documentation clarity
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [], // Apply Bearer token authentication globally
+      },
+    ],
   },
-  apis: ['./routes/*.js'],
+  apis: ['./routes/*.js'], // Automatically include annotations from all route files
 };
 
-const swaggerDocs = swaggerJsDoc(swaggerOptions);
-
-module.exports = (app) => {
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
-};
+const swaggerDocs = swaggerJsdoc(options);
+module.exports = swaggerDocs;

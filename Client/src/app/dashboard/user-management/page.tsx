@@ -25,6 +25,7 @@ import { useSignUp } from "@/app/hooks/auth/useAuth";
 import { useGetUsers } from "@/app/hooks/userMangementData/useGetUsers";
 import { UserForm } from "@/app/forms/useForm";
 import { useRouter } from "next/navigation";
+import { useGetUser } from "@/app/hooks/userMangementData/useGetUser";
 
 const signUpSchema = z.object({
   name: z.string().min(3, { message: "Name must be at least 3 characters" }),
@@ -50,6 +51,7 @@ export default function UserManagementComponent() {
     resolver: zodResolver(signUpSchema),
   });
 
+  const { data: currentuser } = useGetUser();
   const { data: users, isLoading } = useGetUsers();
   const signUpMutation = useSignUp();
 
@@ -66,12 +68,15 @@ export default function UserManagementComponent() {
     }
   };
 
+  const filteredUsers =
+    currentuser?.role === "admin" || "accountant"
+      ? users?.filter((user) => user.role === currentuser?.role)
+      : users?.filter((user) => user.role === currentuser?.role);
+  console.log(filteredUsers);
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
-        <h1 className="text-2xl md:text-3xl font-semibold">
-          User Management
-        </h1>
+        <h1 className="text-2xl md:text-3xl font-semibold">User Management</h1>
         <Button
           onClick={() => setIsModalOpen(true)}
           size="sm"
@@ -86,17 +91,17 @@ export default function UserManagementComponent() {
           <Table className="min-w-full">
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[100px] border-x border-b text-sm sm:text-base">
+                <TableHead className="border-x border-b text-sm sm:text-base">
                   S.No
                 </TableHead>
                 <TableHead className="border-x border-b text-sm sm:text-base">
                   Staff Code
                 </TableHead>
                 <TableHead className="border-x border-b text-sm sm:text-base">
-                  Accountant Name
+                  User Name
                 </TableHead>
                 <TableHead className="border-x border-b text-sm sm:text-base">
-                  E-mail id
+                  Email
                 </TableHead>
                 <TableHead className="border-x border-b text-sm sm:text-base">
                   Type
@@ -124,7 +129,7 @@ export default function UserManagementComponent() {
                       </TableCell>
                     </TableRow>
                   ))
-                : users?.map((user, index) => (
+                : filteredUsers?.map((user, index) => (
                     <TableRow key={user._id} className="even:bg-[#EBF3FA]/30">
                       <TableCell className="font-medium border-x text-sm sm:text-base">
                         {index + 1}
@@ -151,10 +156,14 @@ export default function UserManagementComponent() {
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[425px] w-full">
           <DialogHeader>
-            <DialogTitle className="text-lg md:text-xl">Add New User</DialogTitle>
+            <DialogTitle className="text-lg md:text-xl">
+              Add New User
+            </DialogTitle>
           </DialogHeader>
           <UserForm onSubmit={onSignUpSubmit} />
-          {error && <p className="text-red-500 text-center mt-4 text-sm">{error}</p>}
+          {error && (
+            <p className="text-red-500 text-center mt-4 text-sm">{error}</p>
+          )}
         </DialogContent>
       </Dialog>
     </div>

@@ -12,8 +12,8 @@ export interface User {
   email: string
 }
 
-async function fetchUsers(): Promise<User[]> {
-  const response = await fetch(`${BASE_URL}/api/users`, {
+async function fetchUser(): Promise<User> {
+  const response = await fetch(`${BASE_URL}/api/users/me`, {
     headers: {
       Authorization: `Bearer ${sessionStorage.getItem('auth_token')}`
     }
@@ -24,10 +24,10 @@ async function fetchUsers(): Promise<User[]> {
   return response.json()
 }
 
-export function useGetUsers() {
-  return useQuery<User[], Error>({
-    queryKey: ['users'],
-    queryFn: fetchUsers,
+export function useGetUser() {
+  return useQuery<User, Error>({
+    queryKey: ['user'],
+    queryFn: fetchUser,
     staleTime: 5 * 60 * 1000, 
   })
 }

@@ -4,7 +4,11 @@ const express = require('express');
 const connectDB = require('./config/db');
 const paymentRoutes = require('./routes/paymentRoutes');
 const encryptionRoutes = require('./routes/encryptionRoutes');
-const swaggerSetup = require('./swagger/swagger');
+const busRoutes = require('./routes/busRouteRoutes');
+const userRoutes = require('./routes/userRoutes')
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocs = require('./swagger/swagger');
+
 const cors = require("cors");
 
 const app = express();
@@ -22,11 +26,13 @@ app.use(
 // Routes
 app.use('/api/payments', paymentRoutes);
 app.use('/api/encryption', encryptionRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/busRoutes', busRoutes);
 
 // Swagger
-swaggerSetup(app);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Connect to DB and start server
 connectDB();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port: http://localhost:${PORT}`));

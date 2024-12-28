@@ -1,13 +1,10 @@
+import { BusFee } from "@/app/@types/bus";
 import { auth_token } from "@/app/@types/data";
+import { BASE_URL } from "@/app/utils/constants";
 import { QueryClient, useQuery } from "@tanstack/react-query";
 
-interface Bus{
-  _id?: string;
-  route: string;
-  fee: number;
-}
-async function fetchBusFees(): Promise<Bus[]> {
-    const response = await fetch('https://osaw.in/v1/payment/api/busRoutes', {
+async function fetchBusFees(): Promise<BusFee[]> {
+    const response = await fetch(`${BASE_URL}/api/busRoutes`, {
       headers: {
         Authorization: `Bearer ${auth_token}`
       }
@@ -19,7 +16,7 @@ async function fetchBusFees(): Promise<Bus[]> {
   }
   
   export function useGetBusFees() {
-    return useQuery<Bus[], Error>({
+    return useQuery<BusFee[], Error>({
       queryKey: ['busFees'],
       queryFn: fetchBusFees,
       staleTime: 5 * 60 * 1000, 
