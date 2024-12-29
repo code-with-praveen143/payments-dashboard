@@ -1,5 +1,5 @@
 const express = require('express');
-const { addStudentFee, getStudentFees, updateStudentFee } = require('../controllers/studentFeeController');
+const { addStudentFee, getStudentFees, updateStudentFee, getStudentFeeById } = require('../controllers/studentFeeController');
 const authMiddleware = require('../middleware/authMiddleware');
 const { addStudentsFromExcel,getAllStudentsWithDetails,searchStudentsWithDetails } = require('../controllers/studentFeeController');
 const multer = require('multer');
@@ -46,6 +46,8 @@ const router = express.Router();
  */
 router.post('/', authMiddleware, addStudentFee);
 
+
+
 /**
  * @swagger
  * /api/students:
@@ -56,7 +58,10 @@ router.post('/', authMiddleware, addStudentFee);
  *       200:
  *         description: Successfully fetched fee records
  */
-router.get('/', authMiddleware, getStudentFees);
+router.get('/', resolveTenantConnection, authMiddleware, getStudentFees);
+
+module.exports = router;
+
 
 /**
  * @swagger
@@ -88,9 +93,53 @@ router.get('/', authMiddleware, getStudentFees);
  *       200:
  *         description: Fee record updated successfully
  */
-router.put('/:id', authMiddleware, updateStudentFee);
+router.put('/:id',resolveTenantConnection, authMiddleware, updateStudentFee);
 
 
+/**
+ * @swagger
+ * /api/students/{studentId}:
+ *   get:
+ *     summary: Get fee details by student ID
+ *     description: Retrieve the fee details of a specific student by their ID.
+ *     tags:
+ *       - Student Fees
+ *     parameters:
+ *       - in: path
+ *         name: studentId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the student
+ *     responses:
+ *       200:
+ *         description: Fee details retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                   description: Fee record ID
+ *                 studentId:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                 amount:
+ *                   type: number
+ *                   description: Fee amount
+ *       404:
+ *         description: Student fee record not found
+ *       500:
+ *         description: Server error
+ */
+router.get("/:studentId", authMiddleware, getStudentFeeById);
 
 // Multer configuration for file uploads
 const upload = multer({

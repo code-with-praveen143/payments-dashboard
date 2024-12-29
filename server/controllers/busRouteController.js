@@ -48,12 +48,15 @@ const getBusRoutes = async (req, res) => {
 };
 
 // Update a bus route
+// Update a bus route
 const updateBusRoute = async (req, res) => {
   try {
     const { id } = req.params;
-    const { fee } = req.body;
+    const { route, fee, noOfSeats, filledSeats, isAvailable, subRoutes } = req.body;
 
-    const busRoute = await BusRoute.findByIdAndUpdate(id, { fee }, { new: true });
+    const updatedFields = { route, fee, noOfSeats, filledSeats, isAvailable, subRoutes };
+
+    const busRoute = await BusRoute.findByIdAndUpdate(id, updatedFields, { new: true });
     if (!busRoute) {
       return res.status(404).json({ message: 'Bus route not found' });
     }
@@ -66,4 +69,23 @@ const updateBusRoute = async (req, res) => {
   }
 };
 
-module.exports = { addBusRoute, getBusRoutes, updateBusRoute };
+// Delete a bus route
+const deleteBusRoute = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const busRoute = await BusRoute.findByIdAndDelete(id);
+    if (!busRoute) {
+      return res.status(404).json({ message: 'Bus route not found' });
+    }
+
+    logger.info(`Bus route deleted: ${busRoute.route}`);
+    res.status(200).json({ message: 'Bus route deleted successfully' });
+  } catch (error) {
+    logger.error(`Error deleting bus route: ${error.message}`);
+    res.status(500).json({ message: 'Error deleting bus route' });
+  }
+};
+
+
+module.exports = { addBusRoute, getBusRoutes, updateBusRoute, deleteBusRoute };

@@ -102,8 +102,8 @@ const getUserDetails = async (req, res) => {
 const getAllUsers = async (req, res) => {
   try {
     // Access the tenant-specific User model
-    const User = req.tenantDbUser;
-
+    const User = req.tenantDbUser ;
+    
     // Fetch all users
     const users = await User.find().select('-password'); // Exclude passwords from the result
     res.status(200).json(users);

@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
 const paymentHistorySchema = new mongoose.Schema({
-  studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Links to the User (Student)
-  paymentType: { type: String, enum: ['tuition', 'special'], required: true }, // Fee type
+  studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  paymentType: { type: String, enum: ['College Fee', 'Hostel Fee','Bus Fee','Library Fee','Lab Fee'], required: true }, // Fee type
   yearSem: { type: String, required: true }, // Year and semester for the payment
   amount: { type: Number, required: true }, // Amount paid
   paymentDate: { type: Date, default: Date.now }, // Date of the payment

@@ -8,6 +8,7 @@ import "./globals.css";
 import { AppLayout } from "@/components/layout/app-layout";
 import { AuthLayout } from "@/components/layout/auth-layout";
 import { usePathname } from "next/navigation";
+import { Toaster } from "@/components/ui/toaster";
 
 export default function RootLayout({
   children,
@@ -34,6 +35,7 @@ export default function RootLayout({
             ) : (
               <AppLayout>{children}</AppLayout>
             )}
+            <Toaster />
           </QueryClientProvider>
         </ThemeProvider>
       </body>

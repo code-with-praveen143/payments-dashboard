@@ -1,76 +1,37 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { BASE_URL } from '@/app/utils/constants';
-import { auth_token } from '@/app/@types/data';
+import { StudentFee } from "@/app/@types/student"; // Replace with your actual type
+import { auth_token } from "@/app/@types/data"; // Replace with your actual auth token
+import { BASE_URL } from "@/app/utils/constants"; // Replace with your actual base URL
+import { QueryClient, useQuery } from "@tanstack/react-query";
 
-
-interface RegistrationPayload {
-  userId: string;
-  eventId: string;
-}
-
-interface RegistrationResponse {
-  message: string;
-  eventId: string;
-  userId: string;
-  registeredStudentsCount: number;
-}
-
-const API_BASE_URL = `${BASE_URL}/api`;
-
-export type Student = {
-  _id: string
-  username: string
-  course: string
-  printDocuments: string[]
-  internshipApplications: string[]
-}
-
-export function useGetStudents() {
-  return useQuery<Student[], Error>({
-    queryKey: ['students'],
-    queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/students`, {
-        headers: {
-          'Authorization': `Bearer ${auth_token}`,
-        },
-      })
-      if (!response.ok) {
-        throw new Error('Network response was not ok')
-      }
-      return response.json()
+// Fetch function to get student fee records
+async function fetchStudentFees(): Promise<StudentFee[]> {
+  const response = await fetch(`${BASE_URL}/api/students`, {
+    headers: {
+      Authorization: `Bearer ${auth_token}`,
     },
-  })
+  });
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+  return response.json();
 }
-export function useRegisterStudentForEvent() {
-  const queryClient = useQueryClient()
 
-  return useMutation<RegistrationResponse, Error, RegistrationPayload>({
-    mutationFn: async ({ userId, eventId }) => {
-      const response = await fetch(`${API_BASE_URL}/events/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${auth_token}`,
-        },
-        body: JSON.stringify({ userId, eventId }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to register for event');
-      }
-
-      return response.json();
-    },
-    onSuccess: (data) => {
-      // Invalidate and refetch relevant queries
-      queryClient.invalidateQueries({ queryKey: ['events'] });
-      queryClient.invalidateQueries({ queryKey: ['students'] });
-      queryClient.invalidateQueries({ queryKey: ['event', data.eventId] });
-      queryClient.invalidateQueries({ queryKey: ['student', data.userId] });
-    },
-    onError: (error) => {
-      console.error('Registration error:', error);
-    }
+// Custom hook for fetching student fee records
+export function useGetStudentFees() {
+  return useQuery<StudentFee[], Error>({
+    queryKey: ["studentFees"],
+    queryFn: fetchStudentFees,
+    staleTime: 5 * 60 * 1000, // Data is considered fresh for 5 minutes
   });
 }
+
+// Initialize a QueryClient for the application
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      retry: 1,
+    },
+  },
+});

@@ -21,7 +21,7 @@ const sidebarNavItems = [
     icon: UserCog,
   },
   {
-    title: "Fee Structure",
+    title: "Onboarding Students",
     href: "/dashboard/fee-structure",
     icon: Wallet,
   },
@@ -54,6 +54,11 @@ const sidebarNavItems = [
     title: "Payment Gateway",
     href: "/dashboard/payment-gateway",
     icon: Landmark,
+  },
+  {
+    title: "Payment Success",
+    href: "/dashboard/payment-success",
+    icon: Banknote,
   }
 ];
 

@@ -1,31 +1,86 @@
 'use client'
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
+import { useToaster } from "@/components/ui/toaster"
+import { BASE_URL } from '@/app/utils/constants'
+
+interface PaymentRecord {
+  _id: string
+  studentId: string
+  paymentType: string
+  yearSem: string
+  amount: number
+  transactionId: string
+  paymentDate: string
+}
 
 const PaymentHistory = () => {
-  const data = [
-    {
-      transactionDate: "03/01/2025",
-      feesType: "College- IV",
-      receiptNo: "COL_116",
-      transactionId: "2648934586",
-      id: "24086",
-      paidIn: "Counter",
-      amount: "₹36,000",
-    },
-    {
-      transactionDate: "20/04/2024",
-      feesType: "College- IV",
-      receiptNo: "COL_116",
-      transactionId: "1083567825",
-      id: "09123",
-      paidIn: "Online",
-      amount: "₹26,000",
-    },
-  ];
+  const [paymentHistory, setPaymentHistory] = useState<PaymentRecord[]>([])
+  const [filteredHistory, setFilteredHistory] = useState<PaymentRecord[]>([])
+  const [feeType, setFeeType] = useState("all")
+  const [year, setYear] = useState("all")
+  const [semester, setSemester] = useState("all")
+  const { showToast } = useToaster()
 
-  const [feeType, setFeeType] = useState("");
-  const [year, setYear] = useState("");
-  const [semester, setSemester] = useState("");
+  useEffect(() => {
+    fetchPaymentHistory()
+  }, [])
+
+  useEffect(() => {
+    filterPaymentHistory()
+  }, [paymentHistory, feeType, year, semester])
+
+  const fetchPaymentHistory = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/api/payments`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem('auth_token')}`,
+        },
+      })
+
+      const data = await response.json()
+      if (response.ok) {
+        setPaymentHistory(data)
+      } else {
+        console.error('Error fetching payment history:', data.message)
+        showToast('Failed to fetch payment history', 'warning')
+      }
+    } catch (error) {
+      console.error('Error fetching payment history:', error)
+      showToast('An error occurred while fetching payment history', 'error')
+    }
+  }
+
+  const formatDate = (isoTimestamp: string) => {
+    const date = new Date(isoTimestamp)
+    const day = String(date.getDate()).padStart(2, '0')
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const year = String(date.getFullYear()).slice(2)
+    return `${day}/${month}/${year}`
+  }
+
+  const filterPaymentHistory = () => {
+    let filtered = [...paymentHistory]
+    if (feeType !== "all") {
+      filtered = filtered.filter(payment => payment.paymentType.toLowerCase().includes(feeType.toLowerCase()))
+    }
+    if (year !== "all") {
+      filtered = filtered.filter(payment => payment.yearSem.includes(`Year ${year}`))
+    }
+    if (semester !== "all") {
+      filtered = filtered.filter(payment => payment.yearSem.includes(`Semester ${semester}`))
+    }
+    setFilteredHistory(filtered)
+  }
+
+  const handlePrint = () => {
+    window.print()
+  }
 
   return (
     <div className="flex flex-col items-center min-h-screen p-4 sm:p-6 lg:p-8">
@@ -33,83 +88,77 @@ const PaymentHistory = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl sm:text-2xl font-bold text-primary">Payment History</h1>
-          <button className="px-6 py-2 font-normal bg-blue-500 rounded hover:bg-blue-600 focus:ring focus:ring-blue-300">
-            Print
-          </button>
+          <Button onClick={handlePrint}>Print</Button>
         </div>
 
         {/* Filters */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
           <div className="flex gap-4">
-            <select
-              className="px-4 py-2 text-sm border rounded focus:ring focus:ring-green-300"
-              value={feeType}
-              onChange={(e) => setFeeType(e.target.value)}
-            >
-              <option value="">Fee Type</option>
-              <option value="college">College</option>
-              <option value="hostel">Hostel</option>
-              <option value="transport">Transport</option>
-            </select>
-            <select
-              className="px-4 py-2 text-sm border rounded focus:ring focus:ring-green-300"
-              value={year}
-              onChange={(e) => setYear(e.target.value)}
-            >
-              <option value="">Year By</option>
-              <option value="1">Year I</option>
-              <option value="2">Year II</option>
-              <option value="3">Year III</option>
-              <option value="4">Year IV</option>
-            </select>
-            <select
-              className="px-4 py-2 text-sm border rounded focus:ring focus:ring-green-300"
-              value={semester}
-              onChange={(e) => setSemester(e.target.value)}
-            >
-              <option value="">Semester By</option>
-              <option value="1">Semester I</option>
-              <option value="2">Semester II</option>
-            </select>
+            <Select value={feeType} onValueChange={setFeeType}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Fee Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="college">College</SelectItem>
+                <SelectItem value="hostel">Hostel</SelectItem>
+                <SelectItem value="transport">Transport</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={year} onValueChange={setYear}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Year" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="I Semester">Year I</SelectItem>
+                <SelectItem value="II Semester">Year II</SelectItem>
+                <SelectItem value="III Semester">Year III</SelectItem>
+                <SelectItem value="IV Semester">Year IV</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={semester} onValueChange={setSemester}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Semester" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="I">Semester I</SelectItem>
+                <SelectItem value="II">Semester II</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-gray-200">
-          <table className="w-full border-collapse border text-left text-sm">
-            <thead>
-              <tr>
-                <th className="p-2 border border-gray-200">Transaction Date</th>
-                <th className="p-2 border border-gray-200">Fees Type</th>
-                <th className="p-2 border border-gray-200">Receipt No</th>
-                <th className="p-2 border border-gray-200">Transaction ID</th>
-                <th className="p-2 border border-gray-200">ID</th>
-                <th className="p-2 border border-gray-200">Paid in</th>
-                <th className="p-2 border border-gray-200">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((row, index) => (
-                <tr key={index} className="hover:bg-gray-50 transition">
-                  <td className="p-2 border border-gray-200">
-                    {row.transactionDate}
-                  </td>
-                  <td className="p-2 border border-gray-200">{row.feesType}</td>
-                  <td className="p-2 border border-gray-200">{row.receiptNo}</td>
-                  <td className="p-2 border border-gray-200">
-                    {row.transactionId}
-                  </td>
-                  <td className="p-2 border border-gray-200">{row.id}</td>
-                  <td className="p-2 border border-gray-200">{row.paidIn}</td>
-                  <td className="p-2 border border-gray-200">{row.amount}</td>
-                </tr>
+        <ScrollArea className="h-[500px]">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Transaction Date</TableHead>
+                <TableHead>Fees Type</TableHead>
+                <TableHead>Year/Semester</TableHead>
+                <TableHead>Transaction ID</TableHead>
+                <TableHead>Amount</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredHistory.map((payment) => (
+                <TableRow key={payment._id}>
+                  <TableCell>{formatDate(payment.paymentDate)}</TableCell>
+                  <TableCell>{payment.paymentType}</TableCell>
+                  <TableCell>{payment.yearSem}</TableCell>
+                  <TableCell>{payment.transactionId}</TableCell>
+                  <TableCell>₹{payment.amount.toLocaleString()}</TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
+        </ScrollArea>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default PaymentHistory;
+export default PaymentHistory
+

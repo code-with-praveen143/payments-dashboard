@@ -44,7 +44,7 @@ const allNavItems = [
     icon: UserCog,
   },
   {
-    title: "Fee Structure",
+    title: "Onboarding Students",
     href: "/dashboard/fee-structure",
     icon: CalendarRange,
   },
@@ -78,6 +78,11 @@ const allNavItems = [
     href: "/dashboard/payment-gateway",
     icon: Landmark,
   },
+  {
+    title: "Payment Success",
+    href: "/dashboard/payment-success",
+    icon: Banknote,
+  }
 ];
 
 const ThemeToggle = () => {

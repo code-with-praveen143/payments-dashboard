@@ -1,7 +1,6 @@
 const Tenant = require('../models/Tenant');
 const logger = require('../utils/logger');
 const userSchema = require('../models/User');
-const mongoose = require('mongoose');
 
 // MongoDB Atlas connection URI template
 const MONGO_CLUSTER_URI_TEMPLATE = `mongodb+srv://${process.env.MONGO_ATLAS_USERNAME}:${process.env.MONGO_ATLAS_PASSWORD}@${process.env.MONGO_ATLAS_CLUSTER_URL}/?retryWrites=true&w=majority`;

@@ -6,6 +6,7 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const encryptionRoutes = require('./routes/encryptionRoutes');
 const busRoutes = require('./routes/busRouteRoutes');
 const userRoutes = require('./routes/userRoutes')
+const studentRoutes = require('./routes/studentFeeRoutes')
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocs = require('./swagger/swagger');
 
@@ -28,6 +29,7 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/encryption', encryptionRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/busRoutes', busRoutes);
+app.use('/api/students', studentRoutes);
 
 // Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));

@@ -9,7 +9,7 @@ export function useUploadStudents() {
   
         
         const response = await fetch(
-          "https://osaw.in/v1/payment/api/students/upload-students",
+          "http://localhost:5001/api/students/upload-students",
           {
             method: "POST",
             body: formData,

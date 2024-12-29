@@ -4,6 +4,8 @@ import { useState } from "react";
 
 export default function EncryptURL() {
   const [encryptedURL, setEncryptedURL] = useState("");
+  const [plainURL, setPlainURL] = useState("");
+
   const [loading, setLoading] = useState(false);
 
   const generateEncryptedURL = async () => {
@@ -21,7 +23,7 @@ export default function EncryptURL() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/encryption/generate",
+        "http://localhost:5001/api/encryption/generate",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -31,6 +33,7 @@ export default function EncryptURL() {
 
       const data = await response.json();
       setEncryptedURL(data.encryptedURL);
+      setPlainURL(data.plainURL);
     } catch (error) {
       console.error("Failed to generate encrypted URL:", error);
     } finally {
@@ -60,12 +63,18 @@ export default function EncryptURL() {
             <p className="text-green-700 mb-2 break-all">
               Encrypted URL Generated Successfully!
             </p>
-            <Link
+            <p className="text-green-700 mb-2 break-all">Plain URL {plainURL}</p>
+            <p className="text-blue-500">Encrypted URL {encryptedURL}</p>
+            <p>
+              You can now use this encrypted URL to make a payment using ICICI Payment Gateway. Click on the "Proceed to Payment" button to redirect to the payment gateway.
+            </p>
+            <a
               href={encryptedURL}
+              target="_blank"
               className="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
             >
               Proceed to Payment
-            </Link>
+            </a>
           </div>
         )}
       </div>

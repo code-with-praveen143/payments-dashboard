@@ -1,26 +1,55 @@
-const PaymentHistory = require('../models/PaymentHistory');
-const logger = require('../utils/logger');
+const PaymentHistory = require("../models/PaymentHistory");
+const logger = require("../utils/logger");
 
 // Initiate a payment
 const initiatePayment = async (req, res) => {
   try {
-    const { studentId, amount, gatewayName } = req.body;
+    const {
+      studentId,
+      amount,
+      gatewayName,
+      transactionId,
+      yearSem,
+      paymentType,
+    } = req.body;
 
-    const payment = new PaymentHistory({ studentId, amount, gatewayName });
+    if (
+      !studentId ||
+      !amount ||
+      !gatewayName ||
+      !transactionId ||
+      !yearSem ||
+      !paymentType
+    ) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    const payment = new PaymentHistory({
+      studentId,
+      amount,
+      gatewayName,
+      transactionId,
+      yearSem,
+      paymentType,
+    });
+
     await payment.save();
-
-    logger.info(`Payment initiated for studentId: ${studentId}, amount: ${amount}`);
-    res.status(200).json({ message: 'Payment initiated successfully', payment });
+    res
+      .status(200)
+      .json({ message: "Payment initiated successfully", payment });
   } catch (error) {
-    logger.error(`Error initiating payment: ${error.message}`);
-    res.status(500).json({ message: 'Error initiating payment' });
+    console.error("Error initiating payment:", error.message);
+    res
+      .status(500)
+      .json({ message: "Error initiating payment", error: error.message });
   }
 };
 
 // Get payment history
 const getPaymentHistory = async (req, res) => {
   try {
-    const payments = await PaymentHistory.find().populate('studentId', 'name email');
+    // Fetch all payments and populate student details if referenced
+    const payments = await PaymentHistory.find()
     res.status(200).json(payments);
   } catch (error) {
     logger.error(`Error fetching payment history: ${error.message}`);

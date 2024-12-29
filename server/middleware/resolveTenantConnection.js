@@ -16,11 +16,13 @@ const resolveTenantConnection = async (req, res, next) => {
         if (!tenant) {
             return res.status(404).json({ message: 'Tenant not found.' });
         }
-
+            
         if (!tenantConnections[tenant.databaseUri]) {
             const connection = await mongoose.createConnection(tenant.databaseUri, {
                 useNewUrlParser: true,
                 useUnifiedTopology: true,
+                serverSelectionTimeoutMS: 30000, // Increased timeout
+
             });
 
             tenantConnections[tenant.databaseUri] = {
