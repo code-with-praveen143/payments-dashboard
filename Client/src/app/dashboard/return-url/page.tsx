@@ -1,6 +1,7 @@
 "use client";
+
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
+import { useSearchParams } from "next/navigation";
 import { NEXT_PUBLIC_SHA512_KEY } from "@/app/utils/constants";
 import CryptoJS from "crypto-js";
 
@@ -23,27 +24,24 @@ const generateSHA512Hash = (details: TransactionDetails, secretKey: string): str
 };
 
 const ReturnURL = () => {
+  const searchParams = useSearchParams(); // Use useSearchParams for query params
   const [transactionDetails, setTransactionDetails] = useState<TransactionDetails | null>(null);
   const [isVerified, setIsVerified] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const router = useRouter();
 
   useEffect(() => {
-    if (router.isReady) {
-      const query = router.query as TransactionDetails; // Type assertion
-
-      // Extract transaction details from query parameters
+    if (searchParams) {
+      // Extract query parameters using searchParams.get()
       const details: TransactionDetails = {
-        responseCode: query.responseCode,
-        uniqueRefNumber: query.uniqueRefNumber,
-        transactionAmount: query.transactionAmount,
-        totalAmount: query.totalAmount,
-        transactionDate: query.transactionDate,
-        paymentMode: query.paymentMode,
-        subMerchantId: query.subMerchantId,
-        referenceNo: query.referenceNo,
-        status: query.status,
-        rs: query.rs, // SHA512 signature from Eazypay
+        responseCode: searchParams.get("responseCode") || undefined,
+        uniqueRefNumber: searchParams.get("uniqueRefNumber") || undefined,
+        transactionAmount: searchParams.get("transactionAmount") || undefined,
+        totalAmount: searchParams.get("totalAmount") || undefined,
+        transactionDate: searchParams.get("transactionDate") || undefined,
+        paymentMode: searchParams.get("paymentMode") || undefined,
+        subMerchantId: searchParams.get("subMerchantId") || undefined,
+        referenceNo: searchParams.get("referenceNo") || undefined,
+        status: searchParams.get("status") || undefined,
+        rs: searchParams.get("rs") || undefined,
       };
 
       setTransactionDetails(details);
@@ -52,7 +50,7 @@ const ReturnURL = () => {
       const isValid = verifyResponse(details);
       setIsVerified(isValid);
     }
-  }, [router.isReady, router.query]);
+  }, [searchParams]);
 
   const verifyResponse = (details: TransactionDetails): boolean => {
     const secretKey = NEXT_PUBLIC_SHA512_KEY; // Your secret key
