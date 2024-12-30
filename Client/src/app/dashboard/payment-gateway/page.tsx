@@ -14,15 +14,15 @@ export default function EncryptURL() {
       mandatoryFields: "123456|11|100",
       optionalFields: "",
       returnURL: "https://khit.campusify.io/dashboard/return-url",
-      referenceNo: "123456",
+      referenceNo: "1234578",
       subMerchantID: "11",
-      transactionAmount: "100",
+      transactionAmount: "1",
       payMode: "9",
     };
 
     try {
       const response = await fetch(
-        "http://localhost:5001/api/encryption/generate",
+        "https://osaw.in/v1/payment/api/encryption/generate",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -43,7 +43,7 @@ export default function EncryptURL() {
   const decryptEncryptedURL = async () => {
     try {
       const response = await fetch(
-        "http://localhost:5001/api/encryption/decrypt",
+        "https://osaw.in/v1/payment/api/encryption/decrypt",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

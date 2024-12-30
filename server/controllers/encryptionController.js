@@ -1,5 +1,12 @@
 const { generateEncryptedURL, decryptURL } = require("../services/encryptionService");
-
+const generateReferenceNumber = (minLength = 1, maxLength = 30) => {
+  const length = Math.floor(Math.random() * (maxLength - minLength + 1)) + minLength;
+  let referenceNumber = '';
+  for (let i = 0; i < length; i++) {
+    referenceNumber += Math.floor(Math.random() * 10); // Add a random digit (0-9)
+  }
+  return referenceNumber;
+};
 exports.createEncryptedURL = async (req, res) => {
   const encryptionKey = process.env.ICICI_ENCRYPTION_KEY;
   if (!encryptionKey) {
