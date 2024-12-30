@@ -109,7 +109,7 @@ const ReturnURL = () => {
           </p>
           <div className="mt-6">
             <a
-              href="/"
+              href="/dashboard"
               className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
             >
               Return to Home
