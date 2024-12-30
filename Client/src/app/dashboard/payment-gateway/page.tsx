@@ -15,7 +15,7 @@ export default function EncryptURL() {
       mandatoryFields: "123456|11|100",
       optionalFields: "", // Example optional fields
       returnURL: "https://khit.campusify.io/dashboard/return-url",
-      referenceNo: "12345",
+      referenceNo: "123456",
       subMerchantID: "45",
       transactionAmount: 100,
       payMode: "9",
