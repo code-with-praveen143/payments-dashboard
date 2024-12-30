@@ -1,63 +1,124 @@
 "use client";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { NEXT_PUBLIC_SHA512_KEY } from "@/app/utils/constants";
+import CryptoJS from "crypto-js";
 
-import { useSearchParams } from "next/navigation";
+interface TransactionDetails {
+  responseCode?: string;
+  uniqueRefNumber?: string;
+  transactionAmount?: string;
+  totalAmount?: string;
+  transactionDate?: string;
+  paymentMode?: string;
+  subMerchantId?: string;
+  referenceNo?: string;
+  status?: string;
+  rs?: string;
+}
+
+const generateSHA512Hash = (details: TransactionDetails, secretKey: string): string => {
+  const hashString = `${details.subMerchantId}|${details.responseCode}|${details.uniqueRefNumber}|${details.transactionAmount}|${secretKey}`;
+  return CryptoJS.SHA512(hashString).toString(CryptoJS.enc.Hex);
+};
 
 const ReturnURL = () => {
-  const searchParams = useSearchParams();
-  
-  const status = searchParams.get("status");
-  const transactionId = searchParams.get("transactionId") || "N/A";
-  const amount = searchParams.get("amount") || "N/A";
-  const date = searchParams.get("date") || "N/A";
-  const message = searchParams.get("message") || "N/A";
+  const [transactionDetails, setTransactionDetails] = useState<TransactionDetails | null>(null);
+  const [isVerified, setIsVerified] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const router = useRouter();
+
+  useEffect(() => {
+    if (router.isReady) {
+      const query = router.query as TransactionDetails; // Type assertion
+
+      // Extract transaction details from query parameters
+      const details: TransactionDetails = {
+        responseCode: query.responseCode,
+        uniqueRefNumber: query.uniqueRefNumber,
+        transactionAmount: query.transactionAmount,
+        totalAmount: query.totalAmount,
+        transactionDate: query.transactionDate,
+        paymentMode: query.paymentMode,
+        subMerchantId: query.subMerchantId,
+        referenceNo: query.referenceNo,
+        status: query.status,
+        rs: query.rs, // SHA512 signature from Eazypay
+      };
+
+      setTransactionDetails(details);
+
+      // Validate the response using SHA512 signature
+      const isValid = verifyResponse(details);
+      setIsVerified(isValid);
+    }
+  }, [router.isReady, router.query]);
+
+  const verifyResponse = (details: TransactionDetails): boolean => {
+    const secretKey = NEXT_PUBLIC_SHA512_KEY; // Your secret key
+    const generatedHash = generateSHA512Hash(details, secretKey);
+    return generatedHash === details.rs;
+  };
+
+  const getMessage = (responseCode?: string): string => {
+    switch (responseCode) {
+      case "E000":
+        return "Transaction Successful!";
+      case "E0035":
+      case "E007":
+        return "Transaction Failed. Please try again.";
+      case "E003":
+        return "Transaction Aborted by User.";
+      default:
+        return "Unknown response. Please contact support.";
+    }
+  };
+
+  if (!transactionDetails) {
+    return <p>Loading transaction details...</p>;
+  }
 
   return (
-    <div className="min-h-screen flex items-start justify-center bg-gray-100 p-4">
-      <div className="max-w-lg w-full bg-white shadow-md rounded-lg p-6">
-        {status === "success" ? (
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-green-600 mb-4">Payment Successful</h1>
-            <p className="text-gray-700">Thank you for your payment. Here are the details:</p>
-            <div className="mt-4 text-left">
-              <p className="text-sm text-gray-600">
-                <strong>Transaction ID:</strong> {transactionId}
-              </p>
-              <p className="text-sm text-gray-600">
-                <strong>Amount:</strong> ₹{amount}
-              </p>
-              <p className="text-sm text-gray-600">
-                <strong>Date:</strong> {date}
-              </p>
-              <p className="text-sm text-gray-600">
-                <strong>Message:</strong> {message}
-              </p>
-            </div>
+    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+      <h1 className="text-2xl font-bold mb-4">Transaction Status</h1>
+      {isVerified ? (
+        <div className="bg-white p-6 rounded shadow-md w-full max-w-md">
+          <h2 className="text-lg font-semibold text-green-700">
+            {getMessage(transactionDetails.responseCode)}
+          </h2>
+          <ul className="mt-4 text-left text-gray-700">
+            <li><strong>Transaction ID:</strong> {transactionDetails.uniqueRefNumber}</li>
+            <li><strong>Reference No:</strong> {transactionDetails.referenceNo}</li>
+            <li><strong>Amount:</strong> ₹{transactionDetails.transactionAmount}</li>
+            <li><strong>Total Amount:</strong> ₹{transactionDetails.totalAmount}</li>
+            <li><strong>Date:</strong> {transactionDetails.transactionDate}</li>
+            <li><strong>Payment Mode:</strong> {transactionDetails.paymentMode}</li>
+          </ul>
+          <div className="mt-6">
+            <a
+              href="/"
+              className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+            >
+              Return to Home
+            </a>
           </div>
-        ) : status === "failure" ? (
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-red-600 mb-4">Payment Failed</h1>
-            <p className="text-gray-700">Unfortunately, your payment was not successful. Please try again.</p>
-            <div className="mt-4 text-left">
-              <p className="text-sm text-gray-600">
-                <strong>Transaction ID:</strong> {transactionId}
-              </p>
-              <p className="text-sm text-gray-600">
-                <strong>Amount:</strong> ₹{amount}
-              </p>
-              <p className="text-sm text-gray-600">
-                <strong>Date:</strong> {date}
-              </p>
-              <p className="text-sm text-gray-600">
-                <strong>Message:</strong> {message}
-              </p>
-            </div>
+        </div>
+      ) : (
+        <div className="bg-red-100 p-6 rounded shadow-md w-full max-w-md">
+          <h2 className="text-lg font-semibold text-red-700">Verification Failed</h2>
+          <p className="text-gray-700 mt-2">
+            The response could not be verified. Please contact support.
+          </p>
+          <div className="mt-6">
+            <a
+              href="/"
+              className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+            >
+              Return to Home
+            </a>
           </div>
-        ) : (
-          <div className="text-center">
-            <h1 className="text-xl font-bold text-gray-700">Loading Payment Status...</h1>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
