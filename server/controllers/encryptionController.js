@@ -1,11 +1,11 @@
-const { generateEncryptedURL } = require("../services/encryptionService");
-const PaymentRequest = require("../models/PaymentRequest");
+const { generateEncryptedURL, decryptURL } = require("../services/encryptionService");
 
 exports.createEncryptedURL = async (req, res) => {
   const encryptionKey = process.env.ICICI_ENCRYPTION_KEY;
   if (!encryptionKey) {
     return res.status(500).json({ error: "Encryption key is undefined." });
   }
+
   const {
     merchantID,
     mandatoryFields,
@@ -17,42 +17,57 @@ exports.createEncryptedURL = async (req, res) => {
     payMode,
   } = req.body;
 
-  try {
-    // Generate encrypted URL
-    const encodeParameter = (value) => encodeURIComponent(value);
+  if (
+    !merchantID || 
+    !mandatoryFields || 
+    !returnURL || 
+    !referenceNo || 
+    !subMerchantID || 
+    !transactionAmount || 
+    !payMode
+  ) {
+    return res.status(400).json({ error: "Missing required fields in the request body." });
+  }
 
+  try {
     const { encryptedURL, plainURL } = await generateEncryptedURL(
       {
-        merchantID: encodeParameter(merchantID),
-        mandatoryFields: encodeParameter(mandatoryFields),
-        optionalFields: encodeParameter(optionalFields),
-        returnURL: encodeParameter(
-          "https://khit.campusify.io/dashboard/return-url"
-        ),
-        referenceNo: encodeParameter(referenceNo),
-        subMerchantID: encodeParameter(subMerchantID),
-        transactionAmount: encodeParameter(transactionAmount),
-        payMode: encodeParameter(payMode),
+        merchantID,
+        mandatoryFields,
+        optionalFields: optionalFields,
+        returnURL: "https://khit.campusify.io/dashboard/return-url",
+        referenceNo,
+        subMerchantID,
+        transactionAmount,
+        payMode,
       },
       encryptionKey
     );
 
-    // Log the request in the database
-    const paymentRequest = new PaymentRequest({
-      merchantID,
-      mandatoryFields,
-      optionalFields,
-      returnURL,
-      referenceNo,
-      subMerchantID,
-      transactionAmount,
-      payMode,
-      encryptedURL,
-    });
-    await paymentRequest.save();
-
     res.status(200).json({ encryptedURL, plainURL });
   } catch (error) {
+    console.error("Error generating encrypted URL:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.decryptEncryptedURL = async (req, res) => {
+  const encryptionKey = process.env.ICICI_ENCRYPTION_KEY;
+  if (!encryptionKey) {
+    return res.status(500).json({ error: "Decryption key is undefined." });
+  }
+
+  const { encryptedURL } = req.body;
+
+  if (!encryptedURL) {
+    return res.status(400).json({ error: "Missing encrypted URL in the request body." });
+  }
+
+  try {
+    const decryptedURL = decryptURL(encryptedURL, encryptionKey);
+    res.status(200).json({ decryptedURL });
+  } catch (error) {
+    console.error("Error decrypting URL:", error);
     res.status(500).json({ error: error.message });
   }
 };

@@ -45,4 +45,39 @@ const encryptionController = require('../controllers/encryptionController');
  */
 router.post('/generate', encryptionController.createEncryptedURL);
 
+/**
+ * @swagger
+ * /api/encryption/decrypt:
+ *   post:
+ *     summary: Decrypt an encrypted ICICI payment URL
+ *     tags: [Decryption]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               encryptedURL:
+ *                 type: string
+ *                 description: The encrypted URL to be decrypted.
+ *                 example: "https://eazypay.icicibank.com/EazyPG?merchantid=386949&mandatory fields=aJIJpeX/YCya2yIA5k63tQ=="
+ *     responses:
+ *       200:
+ *         description: Successfully decrypted the URL.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 decryptedParams:
+ *                   type: object
+ *                   description: The decrypted parameters.
+ *       400:
+ *         description: Missing encrypted URL in the request body.
+ *       500:
+ *         description: Internal server error.
+ */
+router.post("/decrypt", encryptionController.decryptEncryptedURL);
+
 module.exports = router;
