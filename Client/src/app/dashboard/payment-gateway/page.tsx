@@ -23,7 +23,7 @@ export default function EncryptURL() {
 
     try {
       const response = await fetch(
-        "http://localhost:5001/api/encryption/generate",
+        "https://osaw.in/v1/payment/api/encryption/generate",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
