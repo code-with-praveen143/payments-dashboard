@@ -1,15 +1,17 @@
-import { useRouter } from 'next/router';
+'use client'
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 const ReturnURL = () => {
-  const router = useRouter();
+  const searchParams = useSearchParams(); // Access query parameters
   const [paymentData, setPaymentData] = useState<any>(null);
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
 
   useEffect(() => {
-    if (router.query.data) {
+    const dataParam = searchParams.get('data'); // Get the "data" query parameter
+    if (dataParam) {
       try {
-        const data = JSON.parse(router.query.data as string);
+        const data = JSON.parse(dataParam);
         setPaymentData(data);
 
         // Check payment status if transaction ID is available
@@ -20,7 +22,7 @@ const ReturnURL = () => {
         console.error('Error parsing payment data:', err);
       }
     }
-  }, [router.query]);
+  }, [searchParams]);
 
   const checkPaymentStatus = async (transactionId: string) => {
     try {
