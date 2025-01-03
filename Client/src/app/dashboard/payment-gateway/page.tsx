@@ -21,7 +21,7 @@ export default function EncryptURL() {
 
     const requestBody = {
       merchantID: "386949",
-      mandatoryFields: "1234567|11|1",
+      mandatoryFields: "12345678|11|1",
       optionalFields: "",
       returnURL: "https://khit.campusify.io/dashboard/return-url",
       referenceNo,
