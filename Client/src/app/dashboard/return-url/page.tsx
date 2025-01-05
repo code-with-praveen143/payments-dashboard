@@ -6,6 +6,8 @@ const ReturnURL = () => {
   const searchParams = useSearchParams(); // Access query parameters
   const [paymentData, setPaymentData] = useState<any>(null);
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true); // Loading state
+  const [error, setError] = useState<string | null>(null); // Error state
 
   // Function to handle data when passed via query params (GET method)
   const handleDataFromQuery = () => {
@@ -21,6 +23,7 @@ const ReturnURL = () => {
         }
       } catch (err) {
         console.error('Error parsing payment data from query:', err);
+        setError('Failed to parse payment data from query');
       }
     }
   };
@@ -29,6 +32,9 @@ const ReturnURL = () => {
   const handleDataFromBody = async () => {
     try {
       const response = await fetch('/api/get-payment-data', { method: 'POST' });
+      if (!response.ok) {
+        throw new Error('Failed to fetch payment data from the server');
+      }
       const data = await response.json();
       setPaymentData(data);
 
@@ -38,6 +44,7 @@ const ReturnURL = () => {
       }
     } catch (err) {
       console.error('Error fetching payment data from body:', err);
+      setError('Failed to fetch payment data from the server');
     }
   };
 
@@ -49,7 +56,12 @@ const ReturnURL = () => {
     if (!paymentData) {
       handleDataFromBody();
     }
-  }, [searchParams]);
+
+    // After data is loaded, set loading to false
+    if (paymentData) {
+      setLoading(false);
+    }
+  }, [searchParams, paymentData]);
 
   const checkPaymentStatus = async (transactionId: string) => {
     try {
@@ -61,16 +73,27 @@ const ReturnURL = () => {
         body: JSON.stringify({ transactionId }), // Send transaction ID to the API route
       });
 
+      if (!response.ok) {
+        throw new Error('Failed to check payment status');
+      }
+
       const result = await response.json();
       setPaymentStatus(result.status || 'Unknown');
     } catch (error) {
       console.error('Error checking payment status:', error);
       setPaymentStatus('Failed to verify payment status');
+      setError('Failed to check payment status');
     }
   };
 
-  if (!paymentData) {
+  // Loading state message
+  if (loading) {
     return <h1>Loading payment details...</h1>;
+  }
+
+  // Show error message if any
+  if (error) {
+    return <h1>Error: {error}</h1>;
   }
 
   return (
