@@ -9,9 +9,10 @@ const ReturnURL = () => {
 
   useEffect(() => {
     const dataParam = searchParams.get('data'); // Get the "data" query parameter
+
     if (dataParam) {
       try {
-        const data = JSON.parse(dataParam);
+        const data = JSON.parse(decodeURIComponent(dataParam)); // Ensure proper decoding
         setPaymentData(data);
 
         // Check payment status if transaction ID is available
