@@ -11,21 +11,22 @@ const ReturnURL = () => {
 
   // Function to handle data when passed via query params (GET method)
   const handleDataFromQuery = () => {
-    const dataParam = searchParams.get('data'); // Get the "data" query parameter
-    if (dataParam) {
-      try {
-        const data = JSON.parse(decodeURIComponent(dataParam)); // Ensure proper decoding
-        setPaymentData(data);
+    const dataParam = searchParams.get('data');
+    console.log(dataParam);// Get the "data" query parameter
+    // if (dataParam) {
+    //   // try {
+    //   //   const data = JSON.parse(decodeURIComponent(dataParam)); // Ensure proper decoding
+    //   //   setPaymentData(data);
 
-        // Check payment status if transaction ID is available
-        if (data.transactionId) {
-          checkPaymentStatus(data.transactionId);
-        }
-      } catch (err) {
-        console.error('Error parsing payment data from query:', err);
-        setError('Failed to parse payment data from query');
-      }
-    }
+    //   //   // Check payment status if transaction ID is available
+    //   //   if (data.transactionId) {
+    //   //     checkPaymentStatus(data.transactionId);
+    //   //   }
+    //   // } catch (err) {
+    //   //   console.error('Error parsing payment data from query:', err);
+    //   //   setError('Failed to parse payment data from query');
+    //   // }
+    // }
   };
 
   // Function to handle data when passed via POST (body data)
