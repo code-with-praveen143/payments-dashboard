@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -7,9 +7,9 @@ const ReturnURL = () => {
   const [paymentData, setPaymentData] = useState<any>(null);
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
 
-  useEffect(() => {
+  // Function to handle data when passed via query params (GET method)
+  const handleDataFromQuery = () => {
     const dataParam = searchParams.get('data'); // Get the "data" query parameter
-
     if (dataParam) {
       try {
         const data = JSON.parse(decodeURIComponent(dataParam)); // Ensure proper decoding
@@ -20,8 +20,34 @@ const ReturnURL = () => {
           checkPaymentStatus(data.transactionId);
         }
       } catch (err) {
-        console.error('Error parsing payment data:', err);
+        console.error('Error parsing payment data from query:', err);
       }
+    }
+  };
+
+  // Function to handle data when passed via POST (body data)
+  const handleDataFromBody = async () => {
+    try {
+      const response = await fetch('/api/get-payment-data', { method: 'POST' });
+      const data = await response.json();
+      setPaymentData(data);
+
+      // Check payment status if transaction ID is available
+      if (data.transactionId) {
+        checkPaymentStatus(data.transactionId);
+      }
+    } catch (err) {
+      console.error('Error fetching payment data from body:', err);
+    }
+  };
+
+  useEffect(() => {
+    // Try fetching data from the query params (GET)
+    handleDataFromQuery();
+    
+    // If there's no data in the query, try fetching it from POST request (fallback)
+    if (!paymentData) {
+      handleDataFromBody();
     }
   }, [searchParams]);
 
