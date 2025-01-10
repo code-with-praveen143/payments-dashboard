@@ -10,6 +10,8 @@ const studentRoutes = require('./routes/studentFeeRoutes')
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocs = require('./swagger/swagger');
 
+const paymentRoutes = require('./routes/payment'); 
+
 const cors = require("cors");
 
 const app = express();
@@ -25,11 +27,13 @@ app.use(
     })
   );
 // Routes
-app.use('/api/payments', paymentRoutes);
+// app.use('/api/payments', paymentRoutes);
 app.use('/api/encryption', encryptionRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/busRoutes', busRoutes);
 app.use('/api/students', studentRoutes);
+
+app.use('/api/payment', paymentRoutes);
 
 // Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
