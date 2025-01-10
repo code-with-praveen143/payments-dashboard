@@ -42,7 +42,7 @@ exports.createEncryptedURL = async (req, res) => {
         merchantID,
         mandatoryFields,
         optionalFields: optionalFields,
-        returnURL: "https://khit.campusify.io/dashboard/return-url",
+        returnURL: "http://localhost:3000/dashboard/return-url",
         referenceNo,
         subMerchantID,
         transactionAmount,
