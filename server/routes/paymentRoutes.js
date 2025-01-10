@@ -1,7 +1,8 @@
 const express = require('express');
-const { initiatePayment, getPaymentHistory } = require('../controllers/paymentController');
+// const { initiatePayment, getPaymentHistory } = require('../controllers/paymentController');
 const authMiddleware = require('../middleware/authMiddleware');
 const router = express.Router();
+const paymentController = require('../controllers/paymentController');
 
 /**
  * @swagger
@@ -37,6 +38,13 @@ const router = express.Router();
  *         description: Payment initiated successfully
  */
 router.post('/', authMiddleware, initiatePayment);
+router.post('/get-payment-data', paymentController.getPaymentData);
+
+// Check payment status
+router.post('/check-payment-status', paymentController.checkPaymentStatus);
+
+// Generate encrypted URL for payment
+router.post('/encryption/generate', paymentController.generateEncryptedURL);
 
 /**
  * @swagger
