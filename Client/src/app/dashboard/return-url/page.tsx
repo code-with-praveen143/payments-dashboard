@@ -1,109 +1,56 @@
-'use client';
-import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';  // If using Next.js for routing
+
+// Define the types for payment data
+interface PaymentData {
+  transactionId: string;
+  status: string;
+  amount: string;
+}
 
 const ReturnURL = () => {
-  const searchParams = useSearchParams(); // Access query parameters
-  const [paymentData, setPaymentData] = useState<any>(null);
-  const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true); // Loading state
-  const [error, setError] = useState<string | null>(null); // Error state
-
-  // Function to handle data when passed via query params (GET method)
-  const handleDataFromQuery = () => {
-    const dataParam = searchParams.get('data');
-    console.log(dataParam);// Get the "data" query parameter
-    // if (dataParam) {
-    //   // try {
-    //   //   const data = JSON.parse(decodeURIComponent(dataParam)); // Ensure proper decoding
-    //   //   setPaymentData(data);
-
-    //   //   // Check payment status if transaction ID is available
-    //   //   if (data.transactionId) {
-    //   //     checkPaymentStatus(data.transactionId);
-    //   //   }
-    //   // } catch (err) {
-    //   //   console.error('Error parsing payment data from query:', err);
-    //   //   setError('Failed to parse payment data from query');
-    //   // }
-    // }
-  };
-
-  // Function to handle data when passed via POST (body data)
-  const handleDataFromBody = async () => {
-    try {
-      const response = await fetch('/api/get-payment-data', { method: 'POST' });
-      if (!response.ok) {
-        throw new Error('Failed to fetch payment data from the server');
-      }
-      const data = await response.json();
-      setPaymentData(data);
-
-      // Check payment status if transaction ID is available
-      if (data.transactionId) {
-        checkPaymentStatus(data.transactionId);
-      }
-    } catch (err) {
-      console.error('Error fetching payment data from body:', err);
-      setError('Failed to fetch payment data from the server');
-    }
-  };
+  const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const router = useRouter();
 
   useEffect(() => {
-    // Try fetching data from the query params (GET)
-    handleDataFromQuery();
-    
-    // If there's no data in the query, try fetching it from POST request (fallback)
-    if (!paymentData) {
-      handleDataFromBody();
+    const { transactionId, status } = router.query;
+    if (transactionId && status) {
+      fetchPaymentData(transactionId as string, status as string);  // Typecasting as string
     }
+  }, [router.query]);
 
-    // After data is loaded, set loading to false
-    if (paymentData) {
-      setLoading(false);
-    }
-  }, [searchParams, paymentData]);
-
-  const checkPaymentStatus = async (transactionId: string) => {
+  // Explicitly type the parameters
+  const fetchPaymentData = async (transactionId: string, status: string) => {
     try {
-      const response = await fetch('/api/check-payment-status', {
+      const response = await fetch('/api/payment/get-payment-data', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ transactionId }), // Send transaction ID to the API route
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transactionId, status }),  // Pass transactionId and status
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to check payment status');
-      }
-
-      const result = await response.json();
-      setPaymentStatus(result.status || 'Unknown');
+      const data = await response.json();
+      setPaymentData(data);
+      setLoading(false);
     } catch (error) {
-      console.error('Error checking payment status:', error);
-      setPaymentStatus('Failed to verify payment status');
-      setError('Failed to check payment status');
+      console.error('Error fetching payment data:', error);
+      setError('Failed to fetch payment data.');
+      setLoading(false);
     }
   };
 
-  // Loading state message
-  if (loading) {
-    return <h1>Loading payment details...</h1>;
-  }
-
-  // Show error message if any
-  if (error) {
-    return <h1>Error: {error}</h1>;
-  }
+  if (loading) return <p>Loading...</p>;
 
   return (
     <div>
-      <h1>Payment Response</h1>
-      <pre>{JSON.stringify(paymentData, null, 2)}</pre>
-
-      <h2>Payment Status</h2>
-      <p>{paymentStatus || 'Checking status...'}</p>
+      {error && <p>{error}</p>}
+      {paymentData && (
+        <div>
+          <p>Transaction ID: {paymentData.transactionId}</p>
+          <p>Status: {paymentData.status}</p>
+          <p>Amount: ${paymentData.amount}</p>
+        </div>
+      )}
     </div>
   );
 };
