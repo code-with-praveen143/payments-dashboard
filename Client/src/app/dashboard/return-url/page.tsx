@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';  // If using Next.js for routing
+"use client"; // Ensures this is a client component
 
-// Define the types for payment data
+import React, { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation"; // Use next/navigation for the app directory
+
 interface PaymentData {
   transactionId: string;
   status: string;
@@ -11,30 +12,39 @@ interface PaymentData {
 const ReturnURL = () => {
   const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const router = useRouter();
+  const [error, setError] = useState("");
+  const searchParams = useSearchParams(); // Use next/navigation
 
   useEffect(() => {
-    const { transactionId, status } = router.query;
-    if (transactionId && status) {
-      fetchPaymentData(transactionId as string, status as string);  // Typecasting as string
-    }
-  }, [router.query]);
+    const transactionId = searchParams.get("transactionId");
+    const status = searchParams.get("status");
 
-  // Explicitly type the parameters
+    if (transactionId && status) {
+      fetchPaymentData(transactionId, status);
+    } else {
+      setLoading(false);
+      setError("Missing transaction details in the URL.");
+    }
+  }, [searchParams]);
+
   const fetchPaymentData = async (transactionId: string, status: string) => {
     try {
-      const response = await fetch('/api/payment/get-payment-data', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ transactionId, status }),  // Pass transactionId and status
+      const response = await fetch("/api/payment/get-payment-data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ transactionId, status }),
       });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch payment data.");
+      }
+
       const data = await response.json();
       setPaymentData(data);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching payment data:', error);
-      setError('Failed to fetch payment data.');
+      console.error("Error fetching payment data:", error);
+      setError("Failed to fetch payment data.");
       setLoading(false);
     }
   };
@@ -43,13 +53,15 @@ const ReturnURL = () => {
 
   return (
     <div>
-      {error && <p>{error}</p>}
-      {paymentData && (
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      {paymentData ? (
         <div>
           <p>Transaction ID: {paymentData.transactionId}</p>
           <p>Status: {paymentData.status}</p>
           <p>Amount: ${paymentData.amount}</p>
         </div>
+      ) : (
+        <p>No payment data available.</p>
       )}
     </div>
   );
