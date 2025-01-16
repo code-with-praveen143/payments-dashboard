@@ -1,26 +1,27 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
+import { useSearchParams } from "next/navigation";
 
 export default function ReturnURL() {
-  const router = useRouter();
+  const searchParams = useSearchParams();
   const [status, setStatus] = useState("");
   const [transactionId, setTransactionId] = useState("");
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    const { status, transactionId } = router.query;
+    const status = searchParams.get("status");
+    const transactionId = searchParams.get("transactionId");
 
     if (status && transactionId) {
-      setStatus(status as string);
-      setTransactionId(transactionId as string);
+      setStatus(status);
+      setTransactionId(transactionId);
 
       // You can add logic here, such as updating the transaction in your database
       setMessage("Payment processed successfully!");
     } else {
       setMessage("No transaction data found.");
     }
-  }, [router.query]);
+  }, [searchParams]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
