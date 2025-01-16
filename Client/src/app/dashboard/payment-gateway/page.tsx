@@ -28,7 +28,7 @@ export default function EncryptAndReturnURL() {
       merchantID: "386949",
       mandatoryFields,
       optionalFields: "",
-      returnURL: "http://localhost:3000/dashboard/return-url",
+      returnURL: `https://khit.campusify.io/dashboard/return-urll?status=success&transactionId=${referenceNo}`,
       referenceNo: referenceNo.toString(),
       subMerchantID: "11",
       transactionAmount,
