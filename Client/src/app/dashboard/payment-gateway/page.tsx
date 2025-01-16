@@ -1,63 +1,66 @@
-'use client';
-import { useState } from 'react';
+"use client";
+import { useState } from "react";
 
-export default function EncryptURL() {
-  const [encryptedURL, setEncryptedURL] = useState('');
-  const [transactionAmount, setTransactionAmount] = useState('');
+export default function EncryptAndReturnURL() {
+  const [encryptedURL, setEncryptedURL] = useState("");
+  const [transactionAmount, setTransactionAmount] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
+  const [paymentData, setPaymentData] = useState<any | null>(null);
 
-  // Generate a random reference number
-  const generateReferenceNo = () => {
-    return Math.floor(Math.random() * 1000000000); // Generates a random 9-digit number
-  };
+  const ICICI_ENCRYPTION_KEY = "3844841769401000"; // Directly integrated for simplicity (use env variable in production)
+
+  const generateReferenceNo = () => Math.floor(Math.random() * 1000000000);
 
   const generateEncryptedURL = async () => {
     if (!transactionAmount) {
-      setError('Transaction Amount is required.');
+      setError("Transaction Amount is required.");
       return;
     }
 
-    setError(''); // Clear any existing error messages
+    setError(""); // Clear error
     setLoading(true);
 
     const referenceNo = generateReferenceNo();
-    const mandatoryFields = `${referenceNo}|11|${transactionAmount}`; // Replace mandatory fields
+    const mandatoryFields = `${referenceNo}|11|${transactionAmount}`;
 
     const requestBody = {
-      merchantID: '386949',
+      merchantID: "386949",
       mandatoryFields,
-      optionalFields: '',
-      returnURL: 'https://khit.campusify.io/dashboard/return-url',
+      optionalFields: "",
+      returnURL: "http://localhost:3000/dashboard/return-url",
       referenceNo: referenceNo.toString(),
-      subMerchantID: '11',
+      subMerchantID: "11",
       transactionAmount,
-      payMode: '9',
+      payMode: "9",
+      encryptionKey: ICICI_ENCRYPTION_KEY, // Include key
     };
 
     try {
       const response = await fetch(
-        'https://osaw.in/v1/payment/api/encryption/generate',
+        "https://osaw.in/v1/payment/api/encryption/generate",
         {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(requestBody),
         }
       );
 
       const data = await response.json();
+      if (!data.encryptedURL) throw new Error("Failed to fetch encrypted URL.");
+
       setEncryptedURL(data.encryptedURL);
 
-      // Log the generated details to the console before redirecting
-      console.log('Generated Payment Details:');
-      console.log('Reference No:', referenceNo);
-      console.log('Transaction Amount:', transactionAmount);
-      console.log('Encrypted URL:', data.encryptedURL);
-      console.log('Request Body:', requestBody);
-
+      // Simulate fetching payment data
+      const paymentDetails = {
+        transactionId: referenceNo.toString(),
+        status: "Pending",
+        amount: transactionAmount,
+      };
+      setPaymentData(paymentDetails);
     } catch (error) {
-      console.error('Failed to generate encrypted URL:', error);
-      setError('Failed to generate encrypted URL.');
+      console.error("Failed to generate encrypted URL:", error);
+      setError("Failed to generate encrypted URL.");
     } finally {
       setLoading(false);
     }
@@ -94,22 +97,33 @@ export default function EncryptURL() {
           disabled={loading}
           className={`w-full py-2 px-4 mb-4 text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 ${
             loading
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-blue-500 hover:bg-blue-600 focus:ring-blue-500'
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-500 hover:bg-blue-600 focus:ring-blue-500"
           }`}
         >
-          {loading ? 'Generating...' : 'Generate Encrypted URL'}
+          {loading ? "Generating..." : "Generate Encrypted URL"}
         </button>
 
         {encryptedURL && (
-          <a
-            href={encryptedURL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-          >
-            Proceed to Payment
-          </a>
+          <>
+            <a
+              href={encryptedURL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            >
+              Proceed to Payment
+            </a>
+
+            {paymentData && (
+              <div className="mt-6">
+                <h2 className="text-xl font-bold mb-2">Payment Details:</h2>
+                <p>Transaction ID: {paymentData.transactionId}</p>
+                <p>Status: {paymentData.status}</p>
+                <p>Amount: ${paymentData.amount}</p>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
