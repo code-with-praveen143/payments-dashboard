@@ -1,70 +1,47 @@
-"use client"; // Ensures this is a client component
+"use client";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 
-import React, { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation"; // Use next/navigation for the app directory
-
-interface PaymentData {
-  transactionId: string;
-  status: string;
-  amount: string;
-}
-
-const ReturnURL = () => {
-  const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const searchParams = useSearchParams(); // Use next/navigation
+export default function ReturnURL() {
+  const router = useRouter();
+  const [status, setStatus] = useState("");
+  const [transactionId, setTransactionId] = useState("");
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
-    const transactionId = searchParams.get("transactionId");
-    const status = searchParams.get("status");
+    const { status, transactionId } = router.query;
 
-    if (transactionId && status) {
-      fetchPaymentData(transactionId, status);
+    if (status && transactionId) {
+      setStatus(status as string);
+      setTransactionId(transactionId as string);
+
+      // You can add logic here, such as updating the transaction in your database
+      setMessage("Payment processed successfully!");
     } else {
-      setLoading(false);
-      setError("Missing transaction details in the URL.");
+      setMessage("No transaction data found.");
     }
-  }, [searchParams]);
-
-  const fetchPaymentData = async (transactionId: string, status: string) => {
-    try {
-      const response = await fetch("/api/payment/get-payment-data", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ transactionId, status }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch payment data.");
-      }
-
-      const data = await response.json();
-      setPaymentData(data);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching payment data:", error);
-      setError("Failed to fetch payment data.");
-      setLoading(false);
-    }
-  };
-
-  if (loading) return <p>Loading...</p>;
+  }, [router.query]);
 
   return (
-    <div>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {paymentData ? (
-        <div>
-          <p>Transaction ID: {paymentData.transactionId}</p>
-          <p>Status: {paymentData.status}</p>
-          <p>Amount: ${paymentData.amount}</p>
-        </div>
-      ) : (
-        <p>No payment data available.</p>
-      )}
+    <div className="flex flex-col items-center justify-center min-h-screen p-4">
+      <div className="shadow-md rounded-lg p-6 w-full max-w-md">
+        <h1 className="text-2xl font-semibold mb-4 text-center text-primary">
+          Payment Status
+        </h1>
+
+        {message && <p className="text-center text-lg mb-4">{message}</p>}
+
+        {transactionId && (
+          <div>
+            <p>
+              <strong>Transaction ID:</strong> {transactionId}
+            </p>
+            <p>
+              <strong>Status:</strong> {status}
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
-};
-
-export default ReturnURL;
+}
