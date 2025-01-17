@@ -1,46 +1,41 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 
-export default function ReturnURL() {
-  const searchParams = useSearchParams();
-  const [status, setStatus] = useState("");
-  const [transactionId, setTransactionId] = useState("");
-  const [message, setMessage] = useState("");
+interface FormData {
+  name: string;
+  number: string;
+  amount: string;
+}
+
+export default function ReturnPage() {
+  const [formData, setFormData] = useState<FormData | null>(null);
 
   useEffect(() => {
-    const status = searchParams.get("status");
-    const transactionId = searchParams.get("transactionId");
-
-    if (status && transactionId) {
-      setStatus(status);
-      setTransactionId(transactionId);
-
-      // You can add logic here, such as updating the transaction in your database
-      setMessage("Payment processed successfully!");
-    } else {
-      setMessage("No transaction data found.");
-    }
-  }, [searchParams]);
+    const data = JSON.parse(localStorage.getItem("formData") || "null");
+    setFormData(data);
+  }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
+    <div className="flex flex-col items-center justify-start min-h-screen p-4">
       <div className="shadow-md rounded-lg p-6 w-full max-w-md">
         <h1 className="text-2xl font-semibold mb-4 text-center text-primary">
-          Payment Status
+          Return URL Page
         </h1>
 
-        {message && <p className="text-center text-lg mb-4">{message}</p>}
-
-        {transactionId && (
+        {formData ? (
           <div>
             <p>
-              <strong>Transaction ID:</strong> {transactionId}
+              <strong>Name:</strong> {formData.name}
             </p>
             <p>
-              <strong>Status:</strong> {status}
+              <strong>Number:</strong> {formData.number}
+            </p>
+            <p>
+              <strong>Amount:</strong> {formData.amount}
             </p>
           </div>
+        ) : (
+          <p>No data found </p>
         )}
       </div>
     </div>
