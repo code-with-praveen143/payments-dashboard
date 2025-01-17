@@ -56,6 +56,11 @@ const sidebarNavItems = [
     icon: Landmark,
   },
   {
+    title: "From Page",
+    href: "/dashboard/Form-dummy",
+    icon: Link2,
+  },
+  {
     title: "Payment Success",
     href: "/dashboard/payment-success",
     icon: Banknote,
