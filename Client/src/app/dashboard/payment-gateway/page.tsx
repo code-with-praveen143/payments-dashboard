@@ -1,88 +1,152 @@
 "use client";
-
 import { useState } from "react";
-import { useRouter } from "next/navigation"; // For Next.js routing
 
-// Define types for the payment details
-interface PaymentData {
-  name: string;
-  number: string;
-  amount: string;
-}
+export default function EncryptURL() {
+  const [encryptedURL, setEncryptedURL] = useState("");
+  const [plainURL, setPlainURL] = useState("");
+  const [decryptedURL, setDecryptedParams] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [transactionAmount, setTransactionAmount] = useState("");
+  const [error, setError] = useState("");
 
-export default function PaymentGatewayPage() {
-  const [formData, setFormData] = useState<PaymentData>({
-    name: "",
-    number: "",
-    amount: "",
-  });
-
-  const router = useRouter(); // Initialize Next.js router
-
-  // Handle form field changes
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+  // Generate a random reference number
+  const generateReferenceNo = () => {
+    return Math.floor(Math.random() * 1000000000); // Generates a random 9-digit number
   };
 
-  // Handle form submission
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Save form data to localStorage (optional)
-    localStorage.setItem("formData", JSON.stringify(formData));
-    alert("Payment data saved successfully!");
-    // Redirect to another page
-    router.push("/dashboard/return-url"); // Replace "/success" with your desired route
+  const generateEncryptedURL = async () => {
+    if (!transactionAmount) {
+      setError("Transaction Amount is required.");
+      return;
+    }
+
+    setError(""); // Clear any existing error messages
+    setLoading(true);
+
+    const referenceNo = generateReferenceNo(); // Random reference number
+    const mandatoryFields = `${referenceNo}|11|${transactionAmount}`; // Replace mandatory fields
+
+    const requestBody = {
+      merchantID: "386949",
+      mandatoryFields, // Use the dynamic mandatory fields
+      optionalFields: "",
+      returnURL: "https://khit.campusify.io/dashboard/return-url",
+      referenceNo: referenceNo.toString(),
+      subMerchantID: "11",
+      transactionAmount,
+      payMode: "9",
+    };
+
+    try {
+      const response = await fetch(
+        "https://osaw.in/v1/payment/api/encryption/generate",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestBody),
+        }
+      );
+
+      const data = await response.json();
+      setEncryptedURL(data.encryptedURL);
+      setPlainURL(data.plainURL);
+    } catch (error) {
+      console.error("Failed to generate encrypted URL:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const decryptEncryptedURL = async () => {
+    try {
+      const response = await fetch(
+        "https://osaw.in/v1/payment/api/encryption/decrypt",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ encryptedURL }),
+        }
+      );
+
+      const data = await response.json();
+      setDecryptedParams(data.decryptedURL);
+    } catch (error) {
+      console.error("Failed to decrypt URL:", error);
+    }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-      <div className="shadow-lg rounded-lg p-6 w-full max-w-lg bg-white">
-        <h1 className="text-2xl font-semibold text-center text-primary mb-4">
-          Payment Gateway
+    <div className="flex flex-col items-center justify-start min-h-screen p-4">
+      <div className="shadow-md rounded-lg p-6 w-full max-w-md">
+        <h1 className="text-2xl font-semibold mb-4 text-center text-primary">
+          Encrypt/Decrypt ICICI Payment URL
         </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-gray-700">Name</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              className="w-full p-2 border rounded"
-            />
+        {error && (
+          <p className="text-red-500 text-sm mb-4">{error}</p>
+        )}
+
+        <div className="mb-4">
+          <label htmlFor="transactionAmount" className="block text-sm font-medium text-gray-700">
+            Transaction Amount
+          </label>
+          <input
+            type="text"
+            id="transactionAmount"
+            value={transactionAmount}
+            onChange={(e) => setTransactionAmount(e.target.value)}
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            placeholder="Enter Transaction Amount"
+          />
+        </div>
+
+        <button
+          onClick={generateEncryptedURL}
+          disabled={loading}
+          className={`w-full py-2 px-4 mb-4 text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+            loading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-500 hover:bg-blue-600 focus:ring-blue-500"
+          }`}
+        >
+          {loading ? "Generating..." : "Generate Encrypted URL"}
+        </button>
+
+        {encryptedURL && (
+          <div className="text-center">
+            <p className="text-green-700 mb-2 break-all">
+              Encrypted URL Generated Successfully!
+            </p>
+            {/* <p className="text-green-700 mb-2 break-all">Plain URL: {plainURL}</p>
+            <p className="text-blue-500">Encrypted URL: {encryptedURL}</p> */}
+            {/* <button
+              onClick={decryptEncryptedURL}
+              className="inline-block bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+            >
+              Decrypt URL
+            </button> */}
           </div>
-          <div>
-            <label className="block text-gray-700">Phone Number</label>
-            <input
-              type="text"
-              name="number"
-              value={formData.number}
-              onChange={handleChange}
-              required
-              className="w-full p-2 border rounded"
-            />
+        )}
+
+        <a
+          href={encryptedURL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+        >
+          Proceed to Payment
+        </a>
+
+        {/* {decryptedURL && (
+          <div className="text-center mt-4">
+            <h2 className="text-xl font-bold text-gray-700 mb-2">
+              Decrypted URL Parameters:
+            </h2>
+            <pre className="text-left bg-gray-100 p-2 rounded text-sm">
+              {decryptedURL}
+            </pre>
           </div>
-          <div>
-            <label className="block text-gray-700">Amount</label>
-            <input
-              type="number"
-              name="amount"
-              value={formData.amount}
-              onChange={handleChange}
-              required
-              className="w-full p-2 border rounded"
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
-          >
-            Save Payment Data
-          </button>
-        </form>
+        )} */}
       </div>
     </div>
   );
