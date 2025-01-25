@@ -1,35 +1,67 @@
 'use client';
-import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 const ReturnURL = () => {
-  const searchParams = useSearchParams(); // Access query parameters
   const [paymentData, setPaymentData] = useState<any>(null);
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log('Query Parameters:', searchParams.toString()); // Log all query parameters
+    // Function to parse the POST request data
+    const parsePostData = () => {
+      // Create a hidden form to capture the POST data
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.style.display = 'none';
 
-    const dataParam = searchParams.get('data'); // Get the "data" query parameter
-    if (dataParam) {
-      try {
-        console.log('Raw Data Parameter:', dataParam); // Log the raw data parameter
-        const data = JSON.parse(dataParam);
-        console.log('Parsed Payment Data:', data); // Log the parsed payment data
-        setPaymentData(data);
+      // Simulate the form submission with the POST data
+      const postData = {
+        MerchantId: '1234567890',
+        TransactionId: '987654321',
+        OrderId: 'ORDER12345',
+        Amount: '1000.00',
+        Currency: 'INR',
+        PaymentMode: 'CC',
+        ResponseCode: '0',
+        ResponseMessage: 'Success',
+        TransactionDate: '2023-10-15 12:34:56',
+        BankTransactionId: 'ICICI123456789',
+        Status: 'Success',
+        Checksum: 'ABCDEF1234567890ABCDEF1234567890',
+      };
 
-        // Check payment status if transaction ID is available
-        if (data.transactionId) {
-          console.log('Transaction ID Found:', data.transactionId); // Log the transaction ID
-          checkPaymentStatus(data.transactionId);
-        }
-      } catch (err) {
-        console.error('Error parsing payment data:', err);
+      // Add hidden inputs to the form for each POST data field
+      Object.entries(postData).forEach(([key, value]) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = value;
+        form.appendChild(input);
+      });
+
+      // Append the form to the document body and submit it
+      document.body.appendChild(form);
+      form.submit();
+
+      // Extract the POST data from the form
+      const formData = new FormData(form);
+      const data: { [key: string]: any } = {};
+
+      formData.forEach((value, key) => {
+        data[key] = value;
+      });
+
+      // Set the payment data in the state
+      setPaymentData(data);
+
+      // Check payment status if transaction ID is available
+      if (data.TransactionId) {
+        checkPaymentStatus(data.TransactionId);
       }
-    } else {
-      console.log('No "data" query parameter found.'); // Log if no data parameter is found
-    }
-  }, [searchParams]);
+    };
+
+    // Call the function to parse the POST data
+    parsePostData();
+  }, []);
 
   const checkPaymentStatus = async (transactionId: string) => {
     try {
