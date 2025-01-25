@@ -1,43 +1,69 @@
-"use client";
-import { useEffect, useState } from "react";
+'use client';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
-interface FormData {
-  name: string;
-  number: string;
-  amount: string;
-}
-
-export default function ReturnPage() {
-  const [formData, setFormData] = useState<FormData | null>(null);
+const ReturnURL = () => {
+  const searchParams = useSearchParams(); // Access query parameters
+  const [paymentData, setPaymentData] = useState<any>(null);
+  const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
 
   useEffect(() => {
-    const data = JSON.parse(localStorage.getItem("formData") || "null");
-    setFormData(data);
-  }, []);
+    console.log('Query Parameters:', searchParams.toString()); // Log all query parameters
+
+    const dataParam = searchParams.get('data'); // Get the "data" query parameter
+    if (dataParam) {
+      try {
+        console.log('Raw Data Parameter:', dataParam); // Log the raw data parameter
+        const data = JSON.parse(dataParam);
+        console.log('Parsed Payment Data:', data); // Log the parsed payment data
+        setPaymentData(data);
+
+        // Check payment status if transaction ID is available
+        if (data.transactionId) {
+          console.log('Transaction ID Found:', data.transactionId); // Log the transaction ID
+          checkPaymentStatus(data.transactionId);
+        }
+      } catch (err) {
+        console.error('Error parsing payment data:', err);
+      }
+    } else {
+      console.log('No "data" query parameter found.'); // Log if no data parameter is found
+    }
+  }, [searchParams]);
+
+  const checkPaymentStatus = async (transactionId: string) => {
+    try {
+      console.log('Checking payment status for transaction ID:', transactionId); // Log before API call
+      const response = await fetch('/api/check-payment-status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ transactionId }), // Send transaction ID to the API route
+      });
+
+      const result = await response.json();
+      console.log('Payment Status API Response:', result); // Log the API response
+      setPaymentStatus(result.status || 'Unknown');
+    } catch (error) {
+      console.error('Error checking payment status:', error);
+      setPaymentStatus('Failed to verify payment status');
+    }
+  };
+
+  if (!paymentData) {
+    return <h1>Loading payment details...</h1>;
+  }
 
   return (
-    <div className="flex flex-col items-center justify-start min-h-screen p-4">
-      <div className="shadow-md rounded-lg p-6 w-full max-w-md">
-        <h1 className="text-2xl font-semibold mb-4 text-center text-primary">
-          Return URL Page
-        </h1>
+    <div>
+      <h1>Payment Response</h1>
+      <pre>{JSON.stringify(paymentData, null, 2)}</pre>
 
-        {formData ? (
-          <div>
-            <p>
-              <strong>Name:</strong> {formData.name}
-            </p>
-            <p>
-              <strong>Number:</strong> {formData.number}
-            </p>
-            <p>
-              <strong>Amount:</strong> {formData.amount}
-            </p>
-          </div>
-        ) : (
-          <p>No data found </p>
-        )}
-      </div>
+      <h2>Payment Status</h2>
+      <p>{paymentStatus || 'Checking status...'}</p>
     </div>
   );
-}
+};
+
+export default ReturnURL;
