@@ -113,9 +113,32 @@ const getAllUsers = async (req, res) => {
 };
 
 
+// Get details of a specific user by ID
+const getUserById = async (req, res) => {
+  try {
+    // Access the tenant-specific User model
+    const User = req.tenantDbUser;
+
+    // Get the user ID from the request parameters
+    const userId = req.params.id;
+
+    // Find the user by ID
+    const user = await User.findById(userId).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    logger.error(`Error fetching user details: ${error.message}`);
+    res.status(500).json({ message: 'Error fetching user details', details: error.message });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
   getUserDetails,
   getAllUsers,
+  getUserById
 };

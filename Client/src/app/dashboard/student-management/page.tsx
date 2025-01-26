@@ -1,243 +1,244 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import Image from 'next/image';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
-import { Toaster, useToaster } from "@/components/ui/toaster"
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 import { BASE_URL } from '@/app/utils/constants';
-import profile from "@/utils/profile.jpeg"
+import { Toaster } from '@/components/ui/toaster';
+import { useRouter } from 'next/navigation';
+
+type FeeDetails = {
+  total: number;
+  paid: number;
+  due: number;
+};
+
+type FeesStructure = {
+  [feeType: string]: {
+    [year: number]: FeeDetails;
+  };
+};
 
 const FeeDetailsUI = () => {
-  const [fees, setFees] = useState([
-    { type: 'College Fee', total: 43000, paid: 13000, due: 30000, selected: false },
-    { type: 'Hostel Fee', total: 25000, paid: 20000, due: 5000, selected: false },
-    { type: 'Bus Fee', total: 15000, paid: 10000, due: 5000, selected: false },
-    { type: 'Library Fee', total: 5000, paid: 5000, due: 0, selected: false },
-    { type: 'Lab Fee', total: 10000, paid: 8000, due: 2000, selected: false },
-  ]);
-  const [paymentHistory, setPaymentHistory] = useState([]);
-  const [totalAmount, setTotalAmount] = useState(0);
+  const [fees, setFees] = useState<FeesStructure>({
+    'College Fee': {
+      1: { total: 10000, paid: 7000, due: 3000 },
+      2: { total: 11000, paid: 8000, due: 3000 },
+      3: { total: 12000, paid: 9000, due: 3000 },
+      4: { total: 13000, paid: 10000, due: 3000 },
+    },
+    'Hostel Fee': {
+      1: { total: 8000, paid: 5000, due: 3000 },
+      2: { total: 8500, paid: 6000, due: 2500 },
+      3: { total: 9000, paid: 7000, due: 2000 },
+      4: { total: 9500, paid: 8000, due: 1500 },
+    },
+    'Bus Fee': {
+      1: { total: 5000, paid: 4000, due: 1000 },
+      2: { total: 5500, paid: 4500, due: 1000 },
+      3: { total: 6000, paid: 5000, due: 1000 },
+      4: { total: 6500, paid: 5500, due: 1000 },
+    },
+  });
+
+  const [dropdownState, setDropdownState] = useState<{
+    feeType: string | null;
+    year: number | null;
+  }>({ feeType: null, year: null });
+
+  const [customAmount, setCustomAmount] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const { toast } = useToast();
+  const router = useRouter();
   const userId = typeof window !== 'undefined' ? sessionStorage.getItem('user_id') : null;
-  const { showToast } = useToaster();
 
-  useEffect(() => {
-    calculateTotal(fees);
-    fetchPaymentHistory();
-  }, []);
+  const handleCustomPayment = async (feeType: string, year: number) => {
+    if (!customAmount || customAmount <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Please enter a valid payment amount.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-  const handleSelectFee = (index: number) => {
-    const updatedFees = [...fees];
-    updatedFees[index].selected = !updatedFees[index].selected;
-    setFees(updatedFees);
-    calculateTotal(updatedFees);
-  };
+    setLoading(true);
 
-  const calculateTotal = (updatedFees: any[]) => {
-    const total = updatedFees.reduce((acc: any, fee: { due: any; }) => acc + fee.due, 0); // Calculate total due
-    setTotalAmount(total);
-  };
-  
-
-  const handleFeeInputChange = (index: number, value: string) => {
-    const updatedFees = [...fees];
-    const newTotal = parseInt(value, 10) || 0;
-  
-    updatedFees[index].due = Math.max(newTotal - updatedFees[index].paid, 0); // Update due dynamically
-    updatedFees[index].total = newTotal;
-  
-    setFees(updatedFees);
-    calculateTotal(updatedFees);
-  };
-  
-
-  const handlePayNow = async () => {
     try {
-      const selectedFees = fees.filter((fee) => fee.selected);
-      const totalPayment = selectedFees.reduce((acc, fee) => acc + fee.total, 0);
-  
-      const payload = {
+      // Step 1: Call the Payment API
+      const paymentPayload = {
         studentId: userId,
-        amount: totalPayment,
-        gatewayName: 'ICICI Eazypay ',
+        amount: customAmount,
+        gatewayName: 'ICICI Eazypay',
         transactionId: `TXN_${Date.now()}`,
-        yearSem: 'IV Semester',
-        paymentType: selectedFees.map((fee) => fee.type).join(', '),
+        yearSem: `${year} Year`,
+        paymentType: feeType,
       };
-  
-      const response = await fetch(`${BASE_URL}/api/payments`, {
+
+      const paymentResponse = await fetch(`${BASE_URL}/api/payments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${sessionStorage.getItem('auth_token')}`,
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(paymentPayload),
       });
-  
-      const data = await response.json();
-      if (response.ok) {
-        showToast(data.message, 'success');
-        fetchPaymentHistory();
-      } else {
-        showToast(data.message || 'Failed to initiate payment', 'error');
+
+      const paymentData = await paymentResponse.json();
+
+      if (!paymentResponse.ok) {
+        throw new Error(paymentData.message || "Failed to process payment");
       }
-    } catch (error) {
-      console.error('Error initiating payment:', error);
-      showToast('An error occurred while initiating payment.', 'error');
-    }
-  };
-  
-  const fetchPaymentHistory = async () => {
-    try {
-      const response = await fetch(`${BASE_URL}/api/payments`, {
-        method: 'GET',
+
+      // Step 2: Call the Return URL API
+      const returnUrlPayload = {
+        'Response Code': 'E000', // Example success response
+        'Unique Ref Number': `REF_${Date.now()}`,
+        'Total Amount': customAmount,
+        'Transaction Amount': customAmount,
+        'Transaction Date': new Date().toLocaleString(),
+        'Payment Mode': 'UPI_ICICI',
+        'SubMerchantId': '11',
+        'ReferenceNo': paymentPayload.transactionId,
+        'ID': userId,
+      };
+
+      const returnUrlResponse = await fetch('/api/return-url', {
+        method: 'POST',
         headers: {
-          Authorization: `Bearer ${sessionStorage.getItem('auth_token')}`,
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify(returnUrlPayload),
       });
 
-      const data = await response.json();
-      if (response.ok) {
-        setPaymentHistory(data);
-      } else {
-        console.error('Error fetching payment history:', data.message);
-        showToast('Failed to fetch payment history', 'warning');
+      const returnUrlData = await returnUrlResponse.json();
+
+      if (!returnUrlResponse.ok) {
+        throw new Error(returnUrlData.message || "Failed to process return URL");
       }
-    } catch (error) {
-      console.error('Error fetching payment history:', error);
-      showToast('An error occurred while fetching payment history', 'error');
+
+      // Step 3: Redirect to the Return URL Page
+      if (returnUrlData.status === 'success') {
+        router.push(
+          `/dashboard/return-url?status=success&data=${encodeURIComponent(
+            JSON.stringify(returnUrlData.data)
+          )}`
+        );
+      } else {
+        throw new Error("Payment failed at the return URL stage");
+      }
+
+      // Update the UI
+      const updatedFees = { ...fees };
+      updatedFees[feeType][year].paid += customAmount;
+      updatedFees[feeType][year].due -= customAmount;
+      setFees(updatedFees);
+      setDropdownState({ feeType: null, year: null });
+      setCustomAmount(null);
+
+      toast({
+        title: "Success!",
+        description: "Payment processed successfully.",
+        variant: "default",
+        className: "bg-green-500 text-white",
+      });
+    } catch (error: any) {
+      console.error('Error processing payment:', error);
+      toast({
+        title: "Error!",
+        description: error.message || "An error occurred while processing payment",
+        variant: "destructive",
+        className: "bg-red-500 text-white",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const formatDate = (isoTimestamp: any) => {
-    const date = new Date(isoTimestamp); // Convert the ISO timestamp to a Date object
-    const day = String(date.getDate()).padStart(2, '0'); // Get the day and pad with 0 if needed
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Get the month (0-indexed) and pad with 0 if needed
-    const year = String(date.getFullYear()).slice(2); // Get the last two digits of the year
-  
-    return `${day}/${month}/${year}`; // Format as dd/mm/yy
-  }
-
-  return (  
+  return (
     <div className="container mx-auto p-4 space-y-6">
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <Image
-                src={profile}
-                alt="Student Profile"
-                width={80}
-                height={80}
-                className="rounded-full object-cover"
-              />
-              <div>
-                <h2 className="text-xl font-bold">Manohar Kumar</h2>
-                <p className="text-muted-foreground">Mechanical (2022 - 2026)</p>
-                <p className="text-muted-foreground">Final Year - VIII Semester</p>
-              </div>
+      {Object.entries(fees).map(([feeType, years]) => (
+        <Card key={feeType}>
+          <CardHeader>
+            <CardTitle>{feeType}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="table-auto w-full border-collapse border border-gray-300">
+                <thead>
+                  <tr>
+                    <th className="border border-gray-300 px-4 py-2">Year</th>
+                    <th className="border border-gray-300 px-4 py-2">Total</th>
+                    <th className="border border-gray-300 px-4 py-2">Paid</th>
+                    <th className="border border-gray-300 px-4 py-2">Due</th>
+                    <th className="border border-gray-300 px-4 py-2">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(years).map(([year, details]) => (
+                    <tr key={year} className="hover:bg-gray-100">
+                      <td className="border border-gray-300 px-4 py-2 text-center">{`${year} Year`}</td>
+                      <td className="border border-gray-300 px-4 py-2 text-center">₹{details.total}</td>
+                      <td className="border border-gray-300 px-4 py-2 text-center">₹{details.paid}</td>
+                      <td className="border border-gray-300 px-4 py-2 text-center">₹{details.due}</td>
+                      <td className="border border-gray-300 px-4 py-2 text-center">
+                        <Button
+                          onClick={() =>
+                            setDropdownState(
+                              dropdownState.feeType === feeType && dropdownState.year === Number(year)
+                                ? { feeType: null, year: null }
+                                : { feeType, year: Number(year) }
+                            )
+                          }
+                          disabled={loading}
+                        >
+                          Pay
+                        </Button>
+                        {dropdownState.feeType === feeType && dropdownState.year === Number(year) && (
+                          <div className="mt-2">
+                            <Input
+                              type="number"
+                              placeholder="Enter amount"
+                              value={customAmount || ''}
+                              onChange={(e) => setCustomAmount(Number(e.target.value))}
+                              className="mb-2"
+                              disabled={loading}
+                            />
+                            <div className="flex space-x-2">
+                              <Button
+                                onClick={() => handleCustomPayment(feeType, Number(year))}
+                                disabled={loading}
+                              >
+                                {loading ? "Processing..." : "Submit"}
+                              </Button>
+                              <Button
+                                variant="secondary"
+                                onClick={() => {
+                                  setDropdownState({ feeType: null, year: null });
+                                  setCustomAmount(null);
+                                }}
+                                disabled={loading}
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            <div className="text-sm space-y-1">
-              <p><span className="font-medium">Register Number:</span> 61161911405</p>
-              <p><span className="font-medium">E-mail:</span> manohar611@gmail.com</p>
-              <p><span className="font-medium">Phone Number:</span> 9876543210</p>
-            </div>
-            <div className="text-center">
-              <p className="text-muted-foreground">Total Pending</p>
-              <p className="text-2xl font-bold text-green-500">₹ {totalAmount}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Fees Details</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ScrollArea className="h-[300px] w-full rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[200px]">Fees Type</TableHead>
-                  <TableHead>Total</TableHead>
-                  <TableHead>Paid</TableHead>
-                  <TableHead>Due</TableHead>
-                  <TableHead>Select</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {fees.map((fee, index) => (
-                  <TableRow key={index}>
-                    <TableCell className="font-medium">{fee.type}</TableCell>
-                    <TableCell>
-                      <Input
-                        type="number"
-                        value={fee.total}
-                        onChange={(e) => handleFeeInputChange(index, e.target.value)}
-                        className="w-24"
-                      />
-                    </TableCell>
-                    <TableCell>₹ {fee.paid}</TableCell>
-                    <TableCell>₹ {fee.due}</TableCell>
-                    <TableCell>
-                      <Checkbox
-                        checked={fee.selected}
-                        onCheckedChange={() => handleSelectFee(index)}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            <ScrollBar orientation="vertical" />
-          </ScrollArea>
-          <Button onClick={handlePayNow} className="mt-4">
-            Pay Now
-          </Button>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Payment History</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ScrollArea className="h-[300px] w-full rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[150px]">Transaction Date</TableHead>
-                  <TableHead>Fees Type</TableHead>
-                  <TableHead>Receipt No</TableHead>
-                  <TableHead>Transaction ID</TableHead>
-                  <TableHead>Amount</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paymentHistory.map((payment: any) => (
-                  <TableRow key={payment._id} className='border-b border-gray-300'>
-                    <TableCell>{formatDate(payment.paymentDate)}</TableCell>
-                    <TableCell>{payment.paymentType}</TableCell>
-                    <TableCell>{payment._id}</TableCell>
-                    <TableCell>{payment.transactionId}</TableCell>
-                    <TableCell>₹ {payment.amount}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            <ScrollBar orientation="vertical" />
-          </ScrollArea>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ))}
       <Toaster />
     </div>
   );
 };
 
 export default FeeDetailsUI;
-

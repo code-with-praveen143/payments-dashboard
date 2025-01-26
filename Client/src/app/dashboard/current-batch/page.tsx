@@ -1,72 +1,50 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { StudentFee } from '@/app/@types/student'
-import { Input } from '@/components/ui/input'
-import { Select } from '@/components/ui/select'
-import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+
+// Mock hook for fetching data
 import { useGetStudentFees } from '@/app/hooks/students/useGetStudents'
-import { Skeleton } from '@/components/ui/skeleton'
+
+interface StudentFee {
+  Department: string
+  rollno: string
+}
+
+// Background colors for departments
+const departmentColors: Record<string, string> = {
+  ECE: 'bg-blue-200',
+  CSE: 'bg-red-200',
+  EEE: 'bg-yellow-200',
+  Bio: 'bg-purple-200',
+  MECH: 'bg-green-200',
+  IT: 'bg-pink-200',
+}
 
 const DepartmentGrid: React.FC = () => {
   const { data, isLoading, isError } = useGetStudentFees()
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedYear, setSelectedYear] = useState<string | null>(null)
-  const [sortBy, setSortBy] = useState<'name' | 'count'>('name')
 
+  // Group and calculate section data
   const groupedData = useMemo(() => {
     if (!data) return {}
 
-    return data.reduce((acc, student) => {
-      const { academicYear, course } = student
-      if (!acc[academicYear]) {
-        acc[academicYear] = {}
-      }
-      if (!acc[academicYear][course]) {
-        acc[academicYear][course] = { count: 0, students: [] }
-      }
-      acc[academicYear][course].count++
-      acc[academicYear][course].students.push(student)
-      return acc
-    }, {} as Record<string, Record<string, { count: number; students: StudentFee[] }>>)
-  }, [data])
+    return data.reduce((acc: any, student: StudentFee) => {
+      const year = getYearFromRollNo(student.rollno)
+      const { Department } = student
 
-  const yearGroups = useMemo(() => {
-    return Object.entries(groupedData)
-      .filter(([year]) => !selectedYear || year === selectedYear)
-      .map(([year, departments]) => ({
-        year,
-        departments: Object.entries(departments)
-          .filter(([name]) =>
-            name.toLowerCase().includes(searchTerm.toLowerCase())
-          )
-          .map(([name, details]) => ({
-            name,
-            count: details.count,
-            sections: ['A', 'B', 'C', 'D'], // Example sections
-            color: `bg-${
-              ['blue', 'green', 'yellow', 'purple', 'pink'][
-                Math.floor(Math.random() * 5)
-              ]
-            }-100`,
-          }))
-          .sort((a, b) =>
-            sortBy === 'name'
-              ? a.name.localeCompare(b.name)
-              : b.count - a.count
-          ),
-      }))
-      .sort((a, b) => b.year.localeCompare(a.year))
-  }, [groupedData, searchTerm, selectedYear, sortBy])
+      if (!acc[year]) acc[year] = {}
+      if (!acc[year][Department]) acc[year][Department] = []
+
+      acc[year][Department].push(student)
+      return acc
+    }, {})
+  }, [data])
 
   if (isLoading) {
     return <LoadingSkeleton />
@@ -78,45 +56,22 @@ const DepartmentGrid: React.FC = () => {
 
   return (
     <div className="p-4 space-y-8">
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <Input
-          placeholder="Search departments..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="md:w-1/3"
-        />
-        <Select
-          value={selectedYear || ''}
-          onValueChange={(value) => setSelectedYear(value || null)}
-          // className="md:w-1/4"
-        >
-          <option value="">All Years</option>
-          {Object.keys(groupedData).map((year) => (
-            <option key={year} value={year}>
-              {year}
-            </option>
-          ))}
-        </Select>
-        <Select
-          value={sortBy}
-          onValueChange={(value) => setSortBy(value as 'name' | 'count')}
-          //className="md:w-1/4"
-        >
-          <option value="name">Sort by Name</option>
-          <option value="count">Sort by Count</option>
-        </Select>
-      </div>
-      {yearGroups.map((yearGroup, index) => (
+      {Object.entries(groupedData).map(([year, departments], index) => (
         <motion.div
-          key={yearGroup.year}
+          key={year}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: index * 0.1 }}
+          className="space-y-4"
         >
-          <h2 className="text-2xl font-bold mb-4">{yearGroup.year}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {yearGroup.departments.map((dept, deptIndex) => (
-              <DepartmentCard key={deptIndex} department={dept} />
+          <h2 className="text-xl font-bold border-b pb-2 mb-4">{`Year: ${year}`}</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {Object.entries(departments as Record<string, StudentFee[]>).map(([department, students]) => (
+              <DepartmentCard
+                key={department}
+                department={department}
+                students={students}
+              />
             ))}
           </div>
         </motion.div>
@@ -125,76 +80,82 @@ const DepartmentGrid: React.FC = () => {
   )
 }
 
-const DepartmentCard: React.FC<{ department: any }> = ({ department }) => {
-  const studentsPerSection = Math.floor(
-    department.count / department.sections.length
-  )
+const DepartmentCard: React.FC<{
+  department: string
+  students: StudentFee[]
+}> = ({ department, students }) => {
+  // Calculate section counts
+  const sectionCounts = calculateSectionCounts(students.length)
 
   return (
-    <Card className={`${department.color} overflow-hidden`}>
+    <Card className={`overflow-hidden ${departmentColors[department] || 'bg-gray-200'}`}>
       <CardHeader>
-        <CardTitle>{department.name}</CardTitle>
-        <CardDescription>Total Students: {department.count}</CardDescription>
+        <CardTitle className="flex justify-between items-center">
+          <span>{department}</span>
+          <span className="text-gray-500">{students.length}</span>
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 gap-2">
-          {department.sections.map((section:any, secIndex:any) => (
+        <div className="grid grid-cols-2 gap-4">
+          {Object.entries(sectionCounts).map(([section, count]) => (
             <div
-              key={secIndex}
-              className="bg-white p-2 rounded-md text-center shadow-sm"
+              key={section}
+              className="flex flex-col items-center justify-center p-2 border rounded-lg bg-white"
             >
-              <div className="font-medium">Section {section}</div>
-              <div className="text-sm text-gray-500">{studentsPerSection}</div>
+              <div className="text-lg font-bold">{section}</div>
+              <div className="text-sm text-gray-600">{count} Students</div>
             </div>
           ))}
         </div>
       </CardContent>
-      <CardFooter>
-        <Button variant="outline" className="w-full">
-          View Details
-        </Button>
-      </CardFooter>
     </Card>
   )
 }
 
-const LoadingSkeleton: React.FC = () => (
-  <div className="p-4 space-y-8">
-    <div className="flex gap-4 mb-6">
-      <Skeleton className="h-10 w-1/3" />
-      <Skeleton className="h-10 w-1/4" />
-      <Skeleton className="h-10 w-1/4" />
-    </div>
-    {[1, 2].map((group) => (
-      <div key={group} className="space-y-4">
-        <Skeleton className="h-8 w-1/4" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map((card) => (
-            <Skeleton key={card} className="h-48" />
-          ))}
-        </div>
-      </div>
+// Utility to calculate section counts
+const calculateSectionCounts = (totalStudents: number) => {
+  const sections = ['A', 'B', 'C', 'D']
+  const baseCount = Math.floor(totalStudents / 4)
+  const remainder = totalStudents % 4
+
+  const counts: Record<string, number> = sections.reduce((acc: Record<string, number>, section) => {
+    acc[section] = baseCount
+    return acc
+  }, {})
+
+  // Distribute the remainder
+  for (let i = 0; i < remainder; i++) {
+    counts[sections[i]] += 1
+  }
+
+  return counts
+}
+
+// Mock helper for year extraction
+const getYearFromRollNo = (rollno: string): string => {
+  // Example logic for extracting year based on roll number
+  const yearCode = rollno.slice(0, 2) // Adjust as per roll number structure
+  const yearMapping: Record<string, string> = {
+    '22': 'Final Year (2022 - 2026)',
+    '23': 'Third Year (2023 - 2027)',
+    '24': 'Second Year (2024 - 2028)',
+    '25': 'First Year (2025 - 2029)',
+  }
+  return yearMapping[yearCode] || 'Unknown Year'
+}
+
+// Skeleton for loading state
+const LoadingSkeleton = () => (
+  <div className="space-y-4">
+    {Array.from({ length: 4 }).map((_, index) => (
+      <div key={index} className="w-full h-24 bg-gray-200 rounded-md animate-pulse"></div>
     ))}
   </div>
 )
 
-const ErrorMessage: React.FC = () => (
-  <div className="flex items-center justify-center h-screen">
-    <Card className="w-96">
-      <CardHeader>
-        <CardTitle className="text-red-600">Error</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p>There was an error loading the data. Please try again later.</p>
-      </CardContent>
-      <CardFooter>
-        <Button onClick={() => window.location.reload()} className="w-full">
-          Retry
-        </Button>
-      </CardFooter>
-    </Card>
-  </div>
+// Error message
+const ErrorMessage = () => (
+  <div className="text-red-500 text-center">Failed to load data</div>
 )
 
 export default DepartmentGrid
-

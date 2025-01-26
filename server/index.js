@@ -7,10 +7,12 @@ const encryptionRoutes = require('./routes/encryptionRoutes');
 const busRoutes = require('./routes/busRouteRoutes');
 const userRoutes = require('./routes/userRoutes')
 const studentRoutes = require('./routes/studentFeeRoutes')
+const documentRoutes = require('./routes/documentRoutes');
+const logoUploadRoutes = require('./routes/logoRoute')
+const iciciRoutes = require('./routes/iciciRoute');
+
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocs = require('./swagger/swagger');
-
-const paymentRoutes = require('./routes/payment'); 
 
 const cors = require("cors");
 
@@ -20,20 +22,21 @@ const app = express();
 app.use(express.json());
 app.use(
     cors({
-      origin: "*", // Adjust based on your frontend
+      origin: ["http://localhost:3000", "https://democampusify.vercel.app"], // Adjust based on your frontend
       methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
       allowedHeaders: ["Content-Type", "Authorization"],
       credentials: true,
     })
   );
 // Routes
-// app.use('/api/payments', paymentRoutes);
+app.use('/api/payments', paymentRoutes);
 app.use('/api/encryption', encryptionRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/busRoutes', busRoutes);
 app.use('/api/students', studentRoutes);
-
-app.use('/api/payment', paymentRoutes);
+app.use("/api/documents", documentRoutes);
+app.use('/api/upload', logoUploadRoutes)
+app.use('/', iciciRoutes);
 
 // Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));

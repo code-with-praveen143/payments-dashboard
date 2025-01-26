@@ -72,7 +72,7 @@ export function Sidebar() {
   const role = typeof window !== "undefined" && sessionStorage.getItem('role');
   const filteredNavItems = sidebarNavItems.filter(item => {    
     if (role === "student") {
-      return ["Dashboard", "Student Profile", "Payment History"].includes(item.title);
+      return ["Dashboard", "Student Profile", "Payment Gateway", "Return URL", "Payment History"].includes(item.title);
     } else if (role === "admin") {
       return !["Student Profile"].includes(item.title);
     } else if (role === "accountant") {
